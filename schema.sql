@@ -1,0 +1,8 @@
+CREATE TABLE "currency" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"currency"	TEXT NOT NULL,
+	"name"	TEXT NOT NULL,
+	"price"	REAL NOT NULL,
+	"date"	TEXT NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
