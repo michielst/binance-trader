@@ -66,6 +66,8 @@ class Trader:
         return dict((
             ('up_count', up_count),
             ('down_count', down_count),
+            ('price_1h_change', prices[-1].price_1h_change),
+            ('price_1h_change_pct', prices[-1].price_1h_change_pct),
             ('price_1d_change', prices[-1].price_1d_change),
             ('price_1d_change_pct', prices[-1].price_1d_change_pct),
         ))
@@ -74,20 +76,25 @@ class Trader:
         going_up = scan_results['up_count'] >= scan_results['down_count']
         diff = scan_results['up_count'] - scan_results['down_count']
 
+        live_price = float(self.api.live(currency)[0]['price'])
+        BUYING_WITH_IN_USD = 1.0
+        amount = BUYING_WITH_IN_USD / live_price
+
+        if diff >= 2 and scan_results['price_1d_change_pct'] > 0:
+            self.log(currency, going_up, diff, scan_results)
+            self.buy(currency, amount, amount * live_price)
+
+        if diff <= -2 and scan_results['price_1h_change_pct'] < 0:
+            amount = self.wallet.get(currency)['amount']
+
+            if amount:
+                self.log(currency, going_up, diff, scan_results)
+                self.sell(currency, amount, amount * live_price)
+
+    def log(self, currency, going_up, diff, scan_results):
         print('currency', currency)
         print('going_up', going_up)
         print('diff', diff)
         print('up_count', scan_results['up_count'])
         print('down_count', scan_results['down_count'])
         print('price_1d_change_pct', scan_results['price_1d_change_pct'])
-
-        live_price = float(self.api.live(currency)[0]['price'])
-        BUYING_WITH_IN_USD = 1.0
-        amount = BUYING_WITH_IN_USD / live_price
-
-        if diff > 5 and scan_results['price_1d_change_pct'] > 0:
-            self.buy(currency, amount, amount * live_price)
-
-        if diff < 5 and scan_results['price_1d_change_pct'] < 0:
-            amount = self.wallet.get(currency)['amount']
-            self.sell(currency, amount, amount * live_price)
