@@ -11,7 +11,7 @@ class NomicsApi(Api):
 
         params = (
             ('key', self.key),
-            ('ids', 'BTC,ETH,XRP,XLM,ALGO,DOGE,COMP,MKR,USDT,DOT,ADA,LINK,LTC,BCH,BNB'),
+            ('ids', 'BTC,ETH,XRP,XLM,ALGO,DOGE,COMP,MKR,USDT,DOT,ADA,LINK,LTC,BCH,BNB,USDC,UNI,WBTC,AAVE,BSV,EOS,XMR,TRX,XEM,XTZ,THETA,SNX,ATOM,VET,DAI,NEO,SUSHI,BUSD,CRO,HT,LEO,MIOTA,SOL,CEL,EGLD,DASH,AVAX,GRT,ZEC,FYI,ETC,DCR,KSM,LUNA,ZIL,WAVES,VGX,NEAR,LRC,RUNE'),
             ('interval', '1h, 1d,30d'),
             ('convert', 'USD'),
             ('per-page', 100),

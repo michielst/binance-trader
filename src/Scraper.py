@@ -13,9 +13,9 @@ class Scraper:
         currencies = api.currencies()
 
         for currency in currencies:
-            # message = "{} ({}): ${} on {}".format(
-            #     currency['name'], currency['currency'], currency['price'], currency['price_timestamp'])
-            # print(message)
+            message = "{} ({}): ${} on {}".format(
+                currency['name'], currency['currency'], currency['price'], currency['price_timestamp'])
+            print(message)
 
             Currency.create(currency=currency['currency'], name=currency['name'],
                             price=currency['price'], date=currency['price_timestamp'],

@@ -76,20 +76,24 @@ class Trader:
         going_up = scan_results['up_count'] >= scan_results['down_count']
         diff = scan_results['up_count'] - scan_results['down_count']
 
-        live_price = float(self.api.live(currency)[0]['price'])
-        BUYING_WITH_IN_USD = 1.0
-        amount = BUYING_WITH_IN_USD / live_price
+        BUYING_WITH_IN_USD = 10.0
 
-        if diff >= 2 and scan_results['price_1d_change_pct'] > 0:
+        if diff >= 3 and scan_results['price_1d_change_pct'] > 0.1:
+            live_price = self.get_live_price(currency)
+            amount = BUYING_WITH_IN_USD / live_price
             self.log(currency, going_up, diff, scan_results)
             self.buy(currency, amount, amount * live_price)
 
-        if diff <= -2 and scan_results['price_1h_change_pct'] < 0:
+        if diff <= -3 and scan_results['price_1h_change_pct'] < 0.1:
+            live_price = self.get_live_price(currency)
             amount = self.wallet.get(currency)['amount']
 
             if amount:
                 self.log(currency, going_up, diff, scan_results)
                 self.sell(currency, amount, amount * live_price)
+
+    def get_live_price(self, currency):
+        return float(self.api.live(currency)[0]['price'])
 
     def log(self, currency, going_up, diff, scan_results):
         print('currency', currency)
