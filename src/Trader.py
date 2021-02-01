@@ -12,7 +12,7 @@ class Trader:
 
     def buy(self, currency, amount, price):
         fee_pct = 0.26
-        fee = (fee_pct / 100) * price
+        fee = (price / 100) * fee_pct
         price_with_fee = price + fee
         print('BUYING {}{} at ${} with ${} fee'.format(
             amount, currency, price, fee))
@@ -21,7 +21,7 @@ class Trader:
 
     def sell(self, currency, amount, price):
         fee_pct = 0.26
-        fee = (fee_pct / 100) * price
+        fee = (price / 100) * fee_pct
         price_with_fee = price - fee
 
         balance = self.wallet.get(currency)
@@ -36,6 +36,7 @@ class Trader:
         currencies = Currency.select().group_by(Currency.currency)
         for currency in currencies:
             results = self.scan(currency.currency)
+            print(results)
             self.decide(currency.currency, results)
 
     def scan(self, currency):
@@ -43,6 +44,7 @@ class Trader:
             -Currency.date).limit(30)
         up_count = 0
         down_count = 0
+        print('------------------')
         for i in reversed(range(len(prices))):
             prev = prices[i-1]
             curr = prices[i]
@@ -62,10 +64,21 @@ class Trader:
 
             date = datetime.strptime(
                 curr.date.replace(':00Z', ''), '%Y-%m-%dT%H:%M')
-            print('{}: {} {}% \tdiff={}$'.format(date, state, diff_pct, diff))
+            print('{} ~ {}: ${} {} {}% \tdiff={}$'.format(
+                currency, date, curr.price, state, diff_pct, diff))
+
+        start_price = prices[-1].price
+        curr_price = prices[0].price
+        price_30m_change = curr_price - start_price
+        price_30m_change_pct = (price_30m_change / start_price * 100) / 100
+
         return dict((
             ('up_count', up_count),
             ('down_count', down_count),
+            ('going_up', up_count > down_count),
+            ('up_down_diff', up_count - down_count),
+            ('price_30m_change', price_30m_change),
+            ('price_30m_change_pct', price_30m_change_pct),
             ('price_1h_change', prices[-1].price_1h_change),
             ('price_1h_change_pct', prices[-1].price_1h_change_pct),
             ('price_1d_change', prices[-1].price_1d_change),
@@ -73,32 +86,18 @@ class Trader:
         ))
 
     def decide(self, currency, scan_results):
-        going_up = scan_results['up_count'] >= scan_results['down_count']
-        diff = scan_results['up_count'] - scan_results['down_count']
+        BUYING_WITH_IN_USD = 0.5
 
-        BUYING_WITH_IN_USD = 10.0
-
-        if diff >= 3 and scan_results['price_1d_change_pct'] > 0.1:
+        if scan_results['going_up'] and scan_results['up_down_diff'] > 5 and scan_results['price_30m_change_pct'] > 0.01:
             live_price = self.get_live_price(currency)
             amount = BUYING_WITH_IN_USD / live_price
-            self.log(currency, going_up, diff, scan_results)
             self.buy(currency, amount, amount * live_price)
 
-        if diff <= -3 and scan_results['price_1h_change_pct'] < 0.1:
-            live_price = self.get_live_price(currency)
+        if scan_results['going_up'] is False and scan_results['up_down_diff'] < -2:
             amount = self.wallet.get(currency)['amount']
-
             if amount:
-                self.log(currency, going_up, diff, scan_results)
+                live_price = self.get_live_price(currency)
                 self.sell(currency, amount, amount * live_price)
 
     def get_live_price(self, currency):
         return float(self.api.live(currency)[0]['price'])
-
-    def log(self, currency, going_up, diff, scan_results):
-        print('currency', currency)
-        print('going_up', going_up)
-        print('diff', diff)
-        print('up_count', scan_results['up_count'])
-        print('down_count', scan_results['down_count'])
-        print('price_1d_change_pct', scan_results['price_1d_change_pct'])

@@ -20,7 +20,7 @@ class Wallet:
             current_value = balance['amount'] * live_value
             diff = current_value - balance['value']
 
-            print('{}{} \t= ${} \tProfit/Loss: ${} \tSpent ${}'.format(
+            print('{}{} \t= ${} \tProfit/Loss: ${} \t\tSpent: ${}'.format(
                 round(balance['amount'], 2),
                 currency.currency,
                 round(current_value, 6),
@@ -32,7 +32,7 @@ class Wallet:
             total_spent += balance['value']
 
         print('--Balance--')
-        print('Total wallet value: ${} \tSpent ${}'.format(
+        print('Total wallet value: ${} \tSpent: ${}'.format(
             total_wallet_value, total_spent))
         print('Total profit/loss: ${}'.format(profit_loss))
 
