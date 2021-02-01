@@ -4,6 +4,8 @@ CREATE TABLE "currency" (
 	"name"	TEXT NOT NULL,
 	"price"	REAL NOT NULL,
 	"date"	TEXT NOT NULL,
+	"price_1h_change"	REAL NOT NULL,
+	"price_1h_change_pct"	REAL NOT NULL,
 	"price_1d_change"	REAL NOT NULL,
 	"price_1d_change_pct"	REAL NOT NULL,
 	"price_30d_change"	REAL NOT NULL,

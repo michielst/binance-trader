@@ -13,6 +13,8 @@ class Currency(BaseModel):
     name = CharField()
     price = FloatField()
     date = DateTimeField()
+    price_1h_change = FloatField()
+    price_1h_change_pct = FloatField()
     price_1d_change = FloatField()
     price_1d_change_pct = FloatField()
     price_30d_change = FloatField()

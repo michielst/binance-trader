@@ -10,6 +10,27 @@ class Trader:
         self.api = NomicsApi()
         self.wallet = wallet
 
+    def buy(self, currency, amount, price):
+        fee_pct = 0.26
+        fee = (fee_pct / 100) * price
+        price_with_fee = price + fee
+        print('BUYING {}{} at ${} with ${} fee'.format(
+            amount, currency, price, fee))
+        Listing.create(currency=currency, amount=amount,
+                       price=price_with_fee, type='buy', date=datetime.now())
+
+    def sell(self, currency, amount, price):
+        fee_pct = 0.26
+        fee = (fee_pct / 100) * price
+        price_with_fee = price + fee
+
+        balance = self.wallet.get(currency)
+        if (balance['amount'] > amount):
+            print('SELLING {}{} at ${} with ${} fee'.format(
+                amount, currency, price, fee))
+            Listing.create(currency=currency, amount=amount,
+                           price=price_with_fee, type='sell', date=datetime.now())
+
     def start(self):
         print('----TRADER STARTED----')
         currencies = Currency.select().group_by(Currency.currency)
@@ -18,10 +39,11 @@ class Trader:
             self.decide(currency.currency, results)
 
     def scan(self, currency):
-        prices = Currency.select().where(Currency.currency == currency).limit(60)
+        prices = Currency.select().where(Currency.currency == currency).order_by(
+            -Currency.date).limit(30)
         up_count = 0
         down_count = 0
-        for i in range(len(prices)):
+        for i in reversed(range(len(prices))):
             prev = prices[i-1]
             curr = prices[i]
 
@@ -40,7 +62,7 @@ class Trader:
 
             date = datetime.strptime(
                 curr.date.replace(':00Z', ''), '%Y-%m-%dT%H:%M')
-            # print('{}: {} {}% \tdiff={}$'.format(date, state, diff_pct, diff))
+            print('{}: {} {}% \tdiff={}$'.format(date, state, diff_pct, diff))
         return dict((
             ('up_count', up_count),
             ('down_count', down_count),
@@ -50,25 +72,22 @@ class Trader:
 
     def decide(self, currency, scan_results):
         going_up = scan_results['up_count'] >= scan_results['down_count']
-        amount = 1
+        diff = scan_results['up_count'] - scan_results['down_count']
+
+        print('currency', currency)
+        print('going_up', going_up)
+        print('diff', diff)
+        print('up_count', scan_results['up_count'])
+        print('down_count', scan_results['down_count'])
+        print('price_1d_change_pct', scan_results['price_1d_change_pct'])
 
         live_price = float(self.api.live(currency)[0]['price'])
+        BUYING_WITH_IN_USD = 1.0
+        amount = BUYING_WITH_IN_USD / live_price
 
-        if going_up and scan_results['price_1d_change_pct'] >= 0.02:
+        if diff > 5 and scan_results['price_1d_change_pct'] > 0:
             self.buy(currency, amount, amount * live_price)
 
-        if going_up is False and scan_results['price_1d_change_pct'] <= 0:
+        if diff < 5 and scan_results['price_1d_change_pct'] < 0:
             amount = self.wallet.get(currency)['amount']
             self.sell(currency, amount, amount * live_price)
-
-    def buy(self, currency, amount, price):
-        print('BUYING {}{} at ${}'.format(amount, currency, price))
-        Listing.create(currency=currency, amount=amount,
-                       price=price, type='buy', date=datetime.now())
-
-    def sell(self, currency, amount, price):
-        balance = self.wallet.get(currency)
-        if (balance['amount'] > amount):
-            print('SELLING {}{} at ${}'.format(amount, currency, price))
-            Listing.create(currency=currency, amount=amount,
-                           price=price, type='sell', date=datetime.now())

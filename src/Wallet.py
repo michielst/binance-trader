@@ -7,18 +7,33 @@ class Wallet:
         self.api = NomicsApi()
 
     def balance(self):
+        print('----WALLET----')
         listing_currencies = Listing.select().group_by(Listing.currency)
 
         profit_loss = 0
+        total_wallet_value = 0
+        total_spent = 0
+
         for currency in listing_currencies:
             balance = self.get(currency.currency)
             live_value = float(self.api.live(currency.currency)[0]['price'])
             current_value = balance['amount'] * live_value
-            diff = balance['value'] - current_value
-            print('{} - \t${}'.format(currency.currency, round(current_value, 6)))
-            print(
-                '\tProfit/Loss: ${} \tSpent ${}'.format(round(diff, 6), round(balance['value'], 6)))
+            diff = current_value - balance['value']
+
+            print('{}{} \t= ${} \tProfit/Loss: ${} \tSpent ${}'.format(
+                round(balance['amount'], 2),
+                currency.currency,
+                round(current_value, 6),
+                round(diff, 6),
+                round(balance['value'], 6)))
+
             profit_loss += diff
+            total_wallet_value += current_value
+            total_spent += balance['value']
+
+        print('--Balance--')
+        print('Total wallet value: ${} \tSpent ${}'.format(
+            total_wallet_value, total_spent))
         print('Total profit/loss: ${}'.format(profit_loss))
 
     def get(self, currency):
