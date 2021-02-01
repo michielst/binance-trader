@@ -22,7 +22,7 @@ class Trader:
     def sell(self, currency, amount, price):
         fee_pct = 0.26
         fee = (fee_pct / 100) * price
-        price_with_fee = price + fee
+        price_with_fee = price - fee
 
         balance = self.wallet.get(currency)
         if (balance['amount'] > amount):
