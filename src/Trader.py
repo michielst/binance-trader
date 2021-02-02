@@ -3,6 +3,8 @@ from datetime import datetime
 from models import Currency, Listing, db
 
 from src.api.NomicsApi import NomicsApi
+from src.strategies.TestStrategy import TestStrategy
+from src.strategies.SimpleSafeStrategy import SimpleSafeStrategy
 
 
 class Trader:
@@ -35,9 +37,14 @@ class Trader:
         print('----TRADER STARTED----')
         currencies = Currency.select().group_by(Currency.currency)
         for currency in currencies:
-            results = self.scan(currency.currency)
-            print(results)
-            self.decide(currency.currency, results)
+            scan_results = self.scan(currency.currency)
+            print(scan_results)
+
+            test_strategy = TestStrategy(scan_results)
+            simple_safe_strategy = SimpleSafeStrategy(scan_results)
+
+            self.decide(currency.currency, test_strategy)
+            self.decide(currency.currency, simple_safe_strategy)
 
     def scan(self, currency):
         prices = Currency.select().where(Currency.currency == currency).order_by(
@@ -52,8 +59,8 @@ class Trader:
             if prev.price == curr.price:
                 continue
 
-            diff = round(prev.price - curr.price, 2)
-            diff_pct = round((diff / prev.price) * 100, 2)
+            diff = round(prev.price - curr.price, 6)
+            diff_pct = round((diff / prev.price) * 100, 6)
 
             if prev.price > curr.price:
                 state = '+++'
@@ -85,15 +92,14 @@ class Trader:
             ('price_1d_change_pct', prices[-1].price_1d_change_pct),
         ))
 
-    def decide(self, currency, scan_results):
+    def decide(self, currency, strategy):
         BUYING_WITH_IN_USD = 0.5
-
-        if scan_results['going_up'] and scan_results['up_down_diff'] > 5 and scan_results['price_30m_change_pct'] > 0.01:
+        if strategy.when_buy():
             live_price = self.get_live_price(currency)
             amount = BUYING_WITH_IN_USD / live_price
             self.buy(currency, amount, amount * live_price)
 
-        if scan_results['going_up'] is False and scan_results['up_down_diff'] < -2:
+        if strategy.when_sell():
             amount = self.wallet.get(currency)['amount']
             if amount:
                 live_price = self.get_live_price(currency)
