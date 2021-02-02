@@ -31,6 +31,7 @@ class Trader:
         currencies = Currency.select().group_by(Currency.currency)
         for currency in currencies:
             scan_results = self.scan(currency.currency)
+
             print(scan_results)
 
             simple_safe_strategy = SimpleSafeStrategy(scan_results)
@@ -41,6 +42,10 @@ class Trader:
             -Currency.date).limit(30)
         up_count = 0
         down_count = 0
+
+        up_streak = 0
+        down_streak = 0
+
         print('------------------')
         for i in reversed(range(len(prices))):
             prev = prices[i-1]
@@ -55,14 +60,18 @@ class Trader:
             if prev.price > curr.price:
                 state = '+++'
                 up_count += 1
+                up_streak += 1
+                down_streak = 0
             else:
                 state = '---'
                 down_count += 1
+                up_streak = 0
+                down_streak += 1
 
             date = datetime.strptime(
                 curr.date.replace(':00Z', ''), '%Y-%m-%dT%H:%M')
-            print('{} ~ {}: ${} {} {}% \tdiff={}$'.format(
-                currency, date, curr.price, state, diff_pct, diff))
+            # print('{} ~ {}: ${} {} {}% \tdiff={}$'.format(
+            #     currency, date, curr.price, state, diff_pct, diff))
 
         start_price = prices[-1].price
         curr_price = prices[0].price
@@ -70,6 +79,8 @@ class Trader:
         price_30m_change_pct = (price_30m_change / start_price * 100) / 100
 
         return dict((
+            ('up_streak', up_streak),
+            ('down_streak', down_streak),
             ('up_count', up_count),
             ('down_count', down_count),
             ('going_up', up_count > down_count),
@@ -84,10 +95,11 @@ class Trader:
 
     def decide(self, currency, strategy):
         fee_pct = 0.26
-        budget_usd = 50
+        budget_usd = 10
        
         if strategy.when_buy():
-            print('BUY')
+            print(strategy.scan_results)
+
             live_price = self.get_live_price(currency)
             fee = (budget_usd / 100) * fee_pct
             price_with_fee = budget_usd - fee
@@ -95,9 +107,10 @@ class Trader:
             self.buy(currency, amount_to_receive, budget_usd)
 
         if strategy.when_sell():
-            print('SELL')       
             amount = float(self.wallet.get(currency)['amount'])
             if amount != 0.0:
+                print(strategy.scan_results)
+
                 # sell all from this coin.
                 live_price = self.get_live_price(currency)
                 price = amount * live_price
