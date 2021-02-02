@@ -33,10 +33,7 @@ class Trader:
             scan_results = self.scan(currency.currency)
             print(scan_results)
 
-            test_strategy = TestStrategy(scan_results)
             simple_safe_strategy = SimpleSafeStrategy(scan_results)
-
-            self.decide(currency.currency, test_strategy)
             self.decide(currency.currency, simple_safe_strategy)
 
     def scan(self, currency):
@@ -90,6 +87,7 @@ class Trader:
         budget_usd = 50
        
         if strategy.when_buy():
+            print('BUY')
             live_price = self.get_live_price(currency)
             fee = (budget_usd / 100) * fee_pct
             price_with_fee = budget_usd - fee
@@ -97,13 +95,15 @@ class Trader:
             self.buy(currency, amount_to_receive, budget_usd)
 
         if strategy.when_sell():
-            # sell all from this coin.
-            amount = self.wallet.get(currency)['amount']
-            live_price = self.get_live_price(currency)
-            price = amount * live_price
-            fee = (price / 100) * fee_pct
-            price_to_receive = (amount * live_price) - fee
-            self.sell(currency, amount, price_to_receive)
+            print('SELL')       
+            amount = float(self.wallet.get(currency)['amount'])
+            if amount != 0.0:
+                # sell all from this coin.
+                live_price = self.get_live_price(currency)
+                price = amount * live_price
+                fee = (price / 100) * fee_pct
+                price_to_receive = (amount * live_price) - fee
+                self.sell(currency, amount, price_to_receive)
 
     def get_live_price(self, currency):
         return float(self.api.live(currency)[0]['price'])

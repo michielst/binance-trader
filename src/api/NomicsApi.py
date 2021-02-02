@@ -7,6 +7,7 @@ class NomicsApi(Api):
         self.api = 'https://api.nomics.com/v1/'
 
     def currencies(self):
+        print('API CALL')
         url = self.api + 'currencies/ticker'
 
         params = (
@@ -20,12 +21,13 @@ class NomicsApi(Api):
 
         return super().get(url, params=params)
 
-    def live(self, currency):
+    def live(self, ids):
+        print('API CALL')
         url = self.api + 'currencies/ticker'
 
         params = (
             ('key', self.key),
-            ('ids', currency),
+            ('ids', ids),
             ('interval', '1h, 1d,30d'),
             ('convert', 'USD'),
             ('per-page', 100),
