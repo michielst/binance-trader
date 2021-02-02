@@ -50,4 +50,4 @@ class Wallet:
                 amount -= listing.amount
                 value -= listing.price
 
-        return dict((('value', value), ('amount', amount)))
+        return dict((('value', float(value)), ('amount', float(amount))))

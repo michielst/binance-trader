@@ -13,25 +13,18 @@ class Trader:
         self.wallet = wallet
 
     def buy(self, currency, amount, price):
-        fee_pct = 0.26
-        fee = (price / 100) * fee_pct
-        price_with_fee = price + fee
-        print('BUYING {}{} at ${} with ${} fee'.format(
-            amount, currency, price, fee))
+        print('BUYING {}{} at ${}'.format(
+            amount, currency, price))
         Listing.create(currency=currency, amount=amount,
-                       price=price_with_fee, type='buy', date=datetime.now())
+                       price=price, type='buy', date=datetime.now())
 
     def sell(self, currency, amount, price):
-        fee_pct = 0.26
-        fee = (price / 100) * fee_pct
-        price_with_fee = price - fee
-
         balance = self.wallet.get(currency)
-        if (balance['amount'] > amount):
-            print('SELLING {}{} at ${} with ${} fee'.format(
-                amount, currency, price, fee))
+        if balance['amount'] != 0 and balance['amount'] >= amount:
+            print('SELLING {}{} at ${}'.format(
+                amount, currency, price))
             Listing.create(currency=currency, amount=amount,
-                           price=price_with_fee, type='sell', date=datetime.now())
+                           price=price, type='sell', date=datetime.now())
 
     def start(self):
         print('----TRADER STARTED----')
@@ -93,17 +86,24 @@ class Trader:
         ))
 
     def decide(self, currency, strategy):
-        BUYING_WITH_IN_USD = 0.5
+        fee_pct = 0.26
+        budget_usd = 50
+       
         if strategy.when_buy():
             live_price = self.get_live_price(currency)
-            amount = BUYING_WITH_IN_USD / live_price
-            self.buy(currency, amount, amount * live_price)
+            fee = (budget_usd / 100) * fee_pct
+            price_with_fee = budget_usd - fee
+            amount_to_receive = price_with_fee / live_price
+            self.buy(currency, amount_to_receive, budget_usd)
 
         if strategy.when_sell():
+            # sell all from this coin.
             amount = self.wallet.get(currency)['amount']
-            if amount:
-                live_price = self.get_live_price(currency)
-                self.sell(currency, amount, amount * live_price)
+            live_price = self.get_live_price(currency)
+            price = amount * live_price
+            fee = (price / 100) * fee_pct
+            price_to_receive = (amount * live_price) - fee
+            self.sell(currency, amount, price_to_receive)
 
     def get_live_price(self, currency):
         return float(self.api.live(currency)[0]['price'])
