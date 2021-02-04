@@ -31,7 +31,7 @@ CREATE TABLE "ticker" (
 	"price"	REAL NOT NULL,
 	"volume24h"	REAL NOT NULL,
 	"prev_price"	REAL NOT NULL,
-	"price_diff_prev"	REAL NOT NULL,
-	"price_diff_prev_pct"	REAL NOT NULL,
+	"price_diff_prev"	REAL,
+	"price_diff_prev_pct"	REAL,
 	PRIMARY KEY("id")
 )
