@@ -22,3 +22,16 @@ CREATE TABLE "listing" (
 	"type"	TEXT NOT NULL,
 	PRIMARY KEY("id")
 )
+
+CREATE TABLE "ticker" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"currency"	TEXT NOT NULL,
+	"epoch"	TEXT NOT NULL,
+	"datetime"	TEXT NOT NULL,
+	"price"	REAL NOT NULL,
+	"volume24h"	REAL NOT NULL,
+	"prev_price"	REAL NOT NULL,
+	"price_diff_prev"	REAL NOT NULL,
+	"price_diff_prev_pct"	REAL NOT NULL,
+	PRIMARY KEY("id")
+)

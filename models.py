@@ -27,3 +27,14 @@ class Listing(BaseModel):
     price = FloatField()
     type = CharField(max_length=5)
     date = DateTimeField()
+
+
+class Ticker(BaseModel):
+    currency = CharField(max_length=10)
+    epoch = CharField()
+    datetime = DateTimeField()
+    price = FloatField()
+    volume24h = FloatField()
+    prev_price = FloatField()
+    price_diff_prev = FloatField()
+    price_diff_prev_pct = FloatField()
