@@ -1,28 +1,23 @@
 import requests
 import time
 from models import Ticker
+from src.Helpers import reverse, calc_diff
 
 
 class TickerCalculator():
     def __init__(self, currency, epoch, price, volume24h, prev_price):
         self.currency = currency
         self.epoch = epoch
-        self.datetime = time.strftime(
-            '%Y-%m-%d %H:%M:%S', time.localtime(self.epoch))
+        self.datetime = datetime(epoch)
         self.price = price
         self.volume24h = volume24h
         self.prev_price = prev_price
         if prev_price:
-            (self.price_diff_prev, self.price_diff_prev_pct) = self.calc_diff(
+            (self.price_diff_prev, self.price_diff_prev_pct) = calc_diff(
                 prev_price, self.price)
         else:
             self.price_diff_prev = None
             self.price_diff_prev_pct = None
-
-    def calc_diff(self, prev, curr):
-        diff = curr - prev
-        diff_pct = (diff / curr) * 100
-        return (diff, diff_pct)
 
     def save(self):
         Ticker.create(currency=self.currency, epoch=self.epoch, datetime=self.datetime, price=self.price, volume24h=self.volume24h,
@@ -34,12 +29,12 @@ class TickerCalculator():
             self.currency, self.datetime, self.price, self.volume24h, self.price_diff_prev, self.price_diff_prev_pct)
 
 
-def reverse(lst):
-    return [ele for ele in reversed(lst)]
+def datetime(epoch):
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
 
 
 def import_data(currency):
-    range_param = 'all'  # 10mi,1h,12h,24h,1w,1m,3m,1y,ytd,all
+    range_param = '24h'  # 10mi,1h,12h,24h,1w,1m,3m,1y,ytd,all
     url = 'https://api.ethereumdb.com/v1/timeseries?pair={}-USD&range={}&type=line'.format(
         currency, range_param)
 
@@ -53,7 +48,7 @@ def import_data(currency):
         if i == 0:
             # get latest record from database to calculate prev_data
             last_ticker = Ticker.select().where(
-                Ticker.currency == currency).order_by(Ticker.datetime.desc())
+                Ticker.currency == currency, Ticker.datetime < datetime(data[i]['timestamp'])).order_by(Ticker.datetime.desc())
             if last_ticker.exists():
                 prev_price = last_ticker[0].price
         else:
