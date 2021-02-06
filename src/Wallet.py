@@ -19,7 +19,7 @@ class Wallet:
 
         if len(listing_currencies) > 0:
             data = self.api.live(ids)
-        
+
         for i in range(len(listing_currencies)):
             currency = listing_currencies[i]
             for item in data:
@@ -41,8 +41,10 @@ class Wallet:
                     total_spent += balance['value']
 
         print('----BALANCE----')
-        print('Total wallet value: ${} \tSpent: ${}'.format(total_wallet_value, total_spent))
-        print('Total profit/loss: ${}'.format(profit_loss))
+        print('Total wallet value: ${} \tSpent: ${}'.format(
+            total_wallet_value, total_spent))
+        profit_loss_pct = total_spent / profit_loss
+        print('Total profit/loss: %{} ==> ${}'.format(profit_loss_pct, profit_loss))
 
     def get(self, currency):
         listings = Listing.select().where(

@@ -60,7 +60,7 @@ class Scanner:
         self.wallet = wallet
         self.trader = Trader(self.wallet)
         self.fee_pct = 0.26
-        self.budget_usd = 10
+        self.budget_usd = 0.1
 
     def get_last_x_items(self, states, i, amount):
         last_x = []
@@ -78,17 +78,17 @@ class Scanner:
             last_30 = self.get_last_x_items(states, i, 30)
             self.decide(state, last_30)
 
-    def buy(self, currency, amount, price):
-        print('BUYING {}{} at ${}'.format(
-            amount, currency, price))
+    def buy(self, date, currency, amount, price):
+        print('{} BUYING {}{} at ${}'.format(date,
+                                             amount, currency, price))
         Listing.create(currency=currency, amount=amount,
                        price=price, type='buy', date=datetime.now())
 
-    def sell(self, currency, amount, price):
+    def sell(self, date, currency, amount, price):
         balance = self.wallet.get(currency)
         if balance['amount'] != 0 and balance['amount'] >= amount:
-            print('SELLING {}{} at ${}'.format(
-                amount, currency, price))
+            print('{} SELLING {}{} at ${}'.format(date,
+                                                  amount, currency, price))
             Listing.create(currency=currency, amount=amount,
                            price=price, type='sell', date=datetime.now())
 
@@ -100,7 +100,8 @@ class Scanner:
             fee = (self.budget_usd / 100) * self.fee_pct
             price_with_fee = self.budget_usd - fee
             amount_to_receive = price_with_fee / live_price
-            self.buy(state.item.currency, amount_to_receive, self.budget_usd)
+            self.buy(state.item.datetime, state.item.currency,
+                     amount_to_receive, self.budget_usd)
 
         elif strategy.when_sell():
             amount = float(self.wallet.get(state.item.currency)['amount'])
@@ -110,4 +111,5 @@ class Scanner:
                 price = amount * live_price
                 fee = (price / 100) * self.fee_pct
                 price_to_receive = (amount * live_price) - fee
-                self.sell(state.item.currency, amount, price_to_receive)
+                self.sell(state.item.datetime, state.item.currency,
+                          amount, price_to_receive)
