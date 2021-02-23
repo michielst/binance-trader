@@ -1,9 +1,10 @@
 from src.api.Api import Api
+from env import *
 
 
 class NomicsApi(Api):
     def __init__(self):
-        self.key = ''
+        self.key = NOMICS_API_KEY
         self.api = 'https://api.nomics.com/v1/'
 
     def currencies(self):
