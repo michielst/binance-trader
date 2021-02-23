@@ -7,7 +7,7 @@ currencies = Ticker.select().group_by(Ticker.currency)
 
 for currency in currencies:
     tickers = Ticker.select().where(
-        Ticker.currency == currency.currency, Ticker.epoch > 1612469565)
+        Ticker.currency == currency.currency, Ticker.epoch > 1614022644)
     scanner = Scanner(tickers, wallet)
     scanner.start()
 

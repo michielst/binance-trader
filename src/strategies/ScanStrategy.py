@@ -14,10 +14,19 @@ class ScanStrategy():
         if len(self.last_30) != 30:
             return False
 
-        return self.diff_pct > 2
+        # return self.diff_pct > 2
+        return self.diff_pct < -3
 
     def when_sell(self):
         if len(self.last_30) != 30:
             return False
 
-        return self.diff_pct < -6
+        # return self.diff_pct < -4
+        return self.diff_pct > 5
+
+
+'''
+    5,5%
+    buy < -3
+    sell > 5
+'''
