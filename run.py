@@ -7,9 +7,14 @@ from binance.exceptions import BinanceAPIException
 
 from env import *
 from models import Ticker
-from src.Helpers import calc_diff
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
+
+
+def calc_diff(prev, curr):
+    diff = curr - prev
+    diff_pct = (diff / curr) * 100
+    return (diff, diff_pct)
 
 
 def scrape(currencies):
@@ -70,7 +75,7 @@ def trade():
         if diff_pct >= 5:
             print('BUY')
 
-        if diff_pct <= -4:
+        if diff_pct <= -3:
             print('SELL')
 
 
