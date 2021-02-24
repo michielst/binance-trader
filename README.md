@@ -12,3 +12,16 @@ CURRENCY = 'EUR'
 SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM',
            'ADA', 'LINK', 'LTC', 'BCH', 'BNB', 'EOS']
 ```
+
+Create database tables
+
+```
+CREATE TABLE "ticker" (
+	"id"	INTEGER NOT NULL,
+	"currency"	TEXT NOT NULL,
+	"price"	REAL NOT NULL,
+	"epoch"	TEXT NOT NULL,
+	"datetime"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+)
+```

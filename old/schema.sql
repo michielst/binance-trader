@@ -24,10 +24,14 @@ CREATE TABLE "listing" (
 )
 
 CREATE TABLE "ticker" (
-	"id"	INTEGER NOT NULL,
+	"id"	INTEGER NOT NULL UNIQUE,
 	"currency"	TEXT NOT NULL,
-	"price"	REAL NOT NULL,
 	"epoch"	TEXT NOT NULL,
-	"datetime"	TEXT,
-	PRIMARY KEY("id" AUTOINCREMENT)
+	"datetime"	TEXT NOT NULL,
+	"price"	REAL NOT NULL,
+	"volume24h"	REAL NOT NULL,
+	"prev_price"	REAL NOT NULL,
+	"price_diff_prev"	REAL,
+	"price_diff_prev_pct"	REAL,
+	PRIMARY KEY("id")
 )
