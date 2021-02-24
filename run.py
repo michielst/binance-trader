@@ -4,11 +4,24 @@ from datetime import datetime
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
+from peewee import *
 
 from env import *
-from models import Ticker
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
+db = SqliteDatabase('database.db')
+
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class Ticker(BaseModel):
+    currency = CharField(max_length=10)
+    epoch = CharField()
+    datetime = DateTimeField()
+    price = FloatField()
 
 
 def calc_diff(prev, curr):
