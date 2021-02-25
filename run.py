@@ -5,39 +5,12 @@ from datetime import datetime
 import requests
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
-from peewee import *
 
 from env import *
+from models import Ticker, Trade
+from strategies import Strategy
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
-db = SqliteDatabase('database.db')
-
-
-class BaseModel(Model):
-    class Meta:
-        database = db
-
-
-class Ticker(BaseModel):
-    currency = CharField(max_length=10)
-    epoch = CharField()
-    datetime = DateTimeField()
-    price = FloatField()
-
-
-class Trade(BaseModel):
-    currency = CharField(max_length=10)
-    quantity = FloatField()
-    price = FloatField()
-    type = CharField(max_length=5)
-    date = DateTimeField()
-    epoch = CharField()
-
-
-def calc_diff(prev, curr):
-    diff = curr - prev
-    diff_pct = (diff / curr) * 100
-    return (diff, diff_pct)
 
 
 def scrape(currencies):
@@ -140,28 +113,6 @@ def start():
 # start()
 
 # BACKTESTING
-
-
-class Strategy():
-    def __init__(self, ticker, last_30_tickers):
-        self.ticker = ticker
-        self.last_30_tickers = last_30_tickers
-
-        if len(self.last_30_tickers) == 30:
-            (self.diff, self.diff_pct) = calc_diff(
-                self.last_30_tickers[0].price, self.ticker.price)
-
-    def when_buy(self):
-        if len(self.last_30_tickers) != 30:
-            return False
-
-        return self.diff_pct <= -5
-
-    def when_sell(self):
-        if len(self.last_30_tickers) != 30:
-            return False
-
-        return self.diff_pct >= 2
 
 
 def get_last_x_items(items, index, amount):
