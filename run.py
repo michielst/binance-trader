@@ -2,6 +2,7 @@ import math
 import time
 from datetime import datetime
 
+import requests
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 from peewee import *
@@ -73,6 +74,23 @@ def buy():
         print(order)
 
 
+def send_telegram(action, text):
+    API_BASE = 'https://api.telegram.org/bot'
+    url = '{}{}/{}?chat_id={}&text={}'.format(
+        API_BASE, TELEGRAM_TOKEN, action, TELEGRAM_CHAT_ID, text)
+    requests.get(url)
+
+
+def log(symbol, diff_pct):
+    if diff_pct >= 5.0:
+        send_telegram(
+            'sendMessage', '{} is UP %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
+
+    if diff_pct <= -5.0:
+        send_telegram(
+            'sendMessage', '{} is DOWN %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
+
+
 def trade():
     for symbol in SYMBOLS:
         tickers = Ticker.select().where(
@@ -84,6 +102,9 @@ def trade():
 
         print('{} \t => %{} \t{}{}'.format(
             symbol, round(diff_pct, 2), diff, CURRENCY))
+
+        if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+            log(symbol, diff_pct)
 
         if diff_pct >= 5:
             print('BUY')

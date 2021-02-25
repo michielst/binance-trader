@@ -11,6 +11,8 @@ BINANCE_API_SECRET=''
 CURRENCY = 'EUR'
 SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM',
            'ADA', 'LINK', 'LTC', 'BCH', 'BNB', 'EOS']
+TELEGRAM_TOKEN = ''
+TELEGRAM_CHAT_ID = ''
 ```
 
 Create database tables
