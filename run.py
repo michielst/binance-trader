@@ -89,10 +89,11 @@ def trade():
             log(symbol, diff_pct)
 
         strategy = Strategy(tickers[0], tickers)
-        strategy.when_buy():
+
+        if strategy.when_buy():
             print('BUY')
 
-        strategy.when_sell():
+        if strategy.when_sell():
             print('SELL')
 
 
