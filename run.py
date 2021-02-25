@@ -82,11 +82,11 @@ def send_telegram(action, text):
 
 
 def log(symbol, diff_pct):
-    if diff_pct >= 5.0:
+    if diff_pct >= 10.0:
         send_telegram(
             'sendMessage', '{} is UP %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
 
-    if diff_pct <= -5.0:
+    if diff_pct <= -10.0:
         send_telegram(
             'sendMessage', '{} is DOWN %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
 
