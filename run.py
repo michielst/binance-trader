@@ -25,6 +25,15 @@ class Ticker(BaseModel):
     price = FloatField()
 
 
+class Trade(BaseModel):
+    currency = CharField(max_length=10)
+    quantity = FloatField()
+    price = FloatField()
+    type = CharField(max_length=5)
+    date = DateTimeField()
+    epoch = CharField()
+
+
 def calc_diff(prev, curr):
     diff = curr - prev
     diff_pct = (diff / curr) * 100
@@ -106,10 +115,11 @@ def trade():
         if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
             log(symbol, diff_pct)
 
-        if diff_pct >= 5:
+        strategy = Strategy(tickers[0], tickers)
+        strategy.when_buy():
             print('BUY')
 
-        if diff_pct <= -3:
+        strategy.when_sell():
             print('SELL')
 
 
@@ -127,5 +137,105 @@ def start():
 
         time.sleep(60 - ((time.time() - starttime) % 60))
 
+# start()
 
-start()
+# BACKTESTING
+
+
+class Strategy():
+    def __init__(self, ticker, last_30_tickers):
+        self.ticker = ticker
+        self.last_30_tickers = last_30_tickers
+
+        if len(self.last_30_tickers) == 30:
+            (self.diff, self.diff_pct) = calc_diff(
+                self.last_30_tickers[0].price, self.ticker.price)
+
+    def when_buy(self):
+        if len(self.last_30_tickers) != 30:
+            return False
+
+        return self.diff_pct <= -5
+
+    def when_sell(self):
+        if len(self.last_30_tickers) != 30:
+            return False
+
+        return self.diff_pct >= 2
+
+
+def get_last_x_items(items, index, amount):
+    last_x = []
+    min = index - amount
+    for x in range(len(items)):
+        if x >= min and x < index:
+            last_x.append(items[x])
+    return last_x
+
+
+def create_backtest_trade(symbol, ticker):
+    order_price = float(12)
+    price = float(ticker.price)
+    quantity = (order_price) / (price) * 0.9995
+    print('{}: BUYING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity,
+                                                   symbol, price, CURRENCY, (quantity * price), CURRENCY))
+    Trade.create(currency=symbol, quantity=quantity, price=ticker.price,
+                 type='buy', date=ticker.datetime, epoch=ticker.epoch)
+
+
+def create_backtest_sell(symbol, ticker):
+    quantity = get_wallet(symbol)
+
+    # sell all for now
+    if quantity > 0:
+        print('{}: SELLING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity, symbol,
+                                                        ticker.price, CURRENCY, (quantity * ticker.price), CURRENCY))
+        Trade.create(currency=symbol, quantity=quantity, price=ticker.price,
+                     type='sell', date=ticker.datetime, epoch=ticker.epoch)
+
+
+def get_wallet(symbol):
+    wallet = Trade.select().where(Trade.currency == symbol).order_by(Trade.date.asc())
+    quantity = 0
+
+    if symbol == CURRENCY:
+        trades = Trade.select().order_by(Trade.date.asc())
+
+        for trade in trades:
+            if trade.type == 'buy':
+                quantity -= 12
+            if trade.type == 'sell':
+                quantity += trade.quantity * trade.price
+    else:
+        for trade in wallet:
+            if trade.type == 'buy':
+                quantity += trade.quantity
+            elif trade.type == 'sell':
+                quantity -= trade.quantity
+
+    return quantity
+
+
+def backtest():
+    for symbol in SYMBOLS:
+        tickers = Ticker.select().where(
+            Ticker.currency == symbol)
+
+        for i in range(len(tickers)):
+            last_30_tickers = get_last_x_items(tickers, i, 30)
+            strategy = Strategy(tickers[i], last_30_tickers)
+
+            if strategy.when_buy():
+                create_backtest_trade(symbol, tickers[i])
+
+            if strategy.when_sell():
+                create_backtest_sell(symbol, tickers[i])
+
+    print('wallet summary:')
+    for symbol in SYMBOLS:
+        quantity = get_wallet(symbol)
+        print('{}: {}'.format(symbol, quantity))
+    print('{}: {}'.format(CURRENCY, get_wallet(CURRENCY)))
+
+
+backtest()

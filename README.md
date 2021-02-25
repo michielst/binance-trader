@@ -26,4 +26,15 @@ CREATE TABLE "ticker" (
 	"datetime"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 )
+
+CREATE TABLE "trade" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"currency"	TEXT NOT NULL,
+	"quantity"	REAL NOT NULL,
+	"price"	REAL NOT NULL,
+	"date"	TEXT NOT NULL,
+	"type"	TEXT NOT NULL,
+	"epoch"	TEXT NOT NULL,
+	PRIMARY KEY("id")
+)
 ```
