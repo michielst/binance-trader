@@ -39,11 +39,11 @@ def figure(symbol):
 
     fig.add_trace(go.Scatter(x=buy_timestamps, y=buy_prices,
                              mode='markers', line=dict(width=10,
-                                                       color='Green'), name='markers'))
+                                                       color='Green'), name='BUY'))
 
     fig.add_trace(go.Scatter(x=sell_timestamps, y=sell_prices,
                              mode='markers', line=dict(width=10,
-                                                       color='Red'), name='markers'))
+                                                       color='Red'), name='SELL'))
 
     # Edit the layout
     fig.update_layout(title='{} Backtest results'.format(symbol),

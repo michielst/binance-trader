@@ -5,12 +5,12 @@
 Create env.py
 
 ```
-NOMICS_API_KEY=''
+NOMICS_API_KEY='' # Only needed for old code
 BINANCE_API_KEY=''
 BINANCE_API_SECRET=''
 CURRENCY = 'EUR'
-SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM',
-           'ADA', 'LINK', 'LTC', 'BCH', 'BNB', 'EOS']
+SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM', 'ADA', 'LINK',
+           'LTC', 'BCH', 'BNB', 'EOS', 'GRT', 'DOT', 'SXP', 'YFI']
 TELEGRAM_TOKEN = ''
 TELEGRAM_CHAT_ID = ''
 ```
