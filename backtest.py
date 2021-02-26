@@ -17,7 +17,6 @@ def create_backtest_trade(symbol, ticker):
 def create_backtest_sell(symbol, ticker):
     quantity = get_wallet(symbol)
 
-    # sell all for now
     if quantity > 0:
         print('{}: SELLING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity, symbol,
                                                         ticker.price, CURRENCY, (quantity * ticker.price), CURRENCY))
@@ -38,7 +37,6 @@ def start():
                 create_backtest_trade(symbol, tickers[i])
 
             if strategy.when_sell():
-                # TODO: Only sell when profit? Check with current wallet and buy prices
                 create_backtest_sell(symbol, tickers[i])
 
     print('wallet summary:')
