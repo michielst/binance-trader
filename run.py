@@ -33,37 +33,37 @@ def scrape(currencies):
     Ticker.insert_many(tickers).execute()
 
 
-def buy():
-    balance = client.get_asset_balance(asset=CURRENCY)
-    print(balance)
+# def buy():
+#     balance = client.get_asset_balance(asset=CURRENCY)
+#     print(balance)
 
-    for s in SYMBOLS:
-        symbol = '{}{}'.format(s, CURRENCY)
-        order_price = float(12)
-        trades = client.get_recent_trades(symbol=symbol)
-        price = float(trades[0]['price'])
-        quantity = (order_price) / (price) * 0.9995
-        print('Buying {}{} at {}{} => {}{}'.format(
-            quantity, s, price, CURRENCY, (quantity * price), CURRENCY))
-        info = client.get_symbol_info(symbol=symbol)
-        stepSize = float(info['filters'][2]['stepSize'])
-        precision = int(round(-math.log(stepSize, 10), 0))
-        order = client.create_test_order(
-            symbol=symbol,
-            side=Client.SIDE_BUY,
-            type=Client.ORDER_TYPE_MARKET,
-            quantity=(round(quantity, precision)))
-        print(order)
+#     for s in SYMBOLS:
+#         symbol = '{}{}'.format(s, CURRENCY)
+#         order_price = float(12)
+#         trades = client.get_recent_trades(symbol=symbol)
+#         price = float(trades[0]['price'])
+#         quantity = (order_price) / (price) * 0.9995
+#         print('Buying {}{} at {}{} => {}{}'.format(
+#             quantity, s, price, CURRENCY, (quantity * price), CURRENCY))
+#         info = client.get_symbol_info(symbol=symbol)
+#         stepSize = float(info['filters'][2]['stepSize'])
+#         precision = int(round(-math.log(stepSize, 10), 0))
+#         order = client.create_test_order(
+#             symbol=symbol,
+#             side=Client.SIDE_BUY,
+#             type=Client.ORDER_TYPE_MARKET,
+#             quantity=(round(quantity, precision)))
+#         print(order)
 
 
 def log(symbol, diff_pct):
     if diff_pct >= 5.0:
         send_telegram(
-            'sendMessage', '{} is UP %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
+            'sendMessage', '🟢 {} UP %{}'.format(symbol, round(diff_pct, 2)))
 
     if diff_pct <= -5.0:
         send_telegram(
-            'sendMessage', '{} is DOWN %{} in the last 30 minutes.'.format(symbol, round(diff_pct, 2)))
+            'sendMessage', '🔴 {} DOWN %{}'.format(symbol, round(diff_pct, 2)))
 
 
 def trade():
@@ -97,10 +97,10 @@ def start():
         scrape(SYMBOLS)
         scraper_runs_count += 1
 
-        # if scraper_runs_count > 0:
-        #     trade()
-        # else:
-        #     print('starting trader in {} minutes'.format(30 - scraper_runs_count))
+        if scraper_runs_count > 0:
+            trade()
+        else:
+            print('starting trader in {} minutes'.format(30 - scraper_runs_count))
 
         time.sleep(60 - ((time.time() - starttime) % 60))
 
