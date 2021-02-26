@@ -12,7 +12,7 @@ def figure(symbol):
     # https://plotly.com/python/line-charts/
     fig = go.Figure()
     tickers = Ticker.select().where(
-        Ticker.currency == symbol).limit(10000).order_by(-Ticker.epoch)
+        Ticker.currency == symbol, Ticker.epoch > 1614297600).order_by(-Ticker.epoch)
 
     timestamps = []
     prices = []

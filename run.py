@@ -97,7 +97,7 @@ def start():
         scrape(SYMBOLS)
         scraper_runs_count += 1
 
-        if scraper_runs_count > 0:
+        if scraper_runs_count > 30:
             trade()
         else:
             print('starting trader in {} minutes'.format(30 - scraper_runs_count))

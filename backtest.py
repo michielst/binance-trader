@@ -28,7 +28,7 @@ def create_backtest_sell(symbol, ticker):
 def start():
     for symbol in SYMBOLS:
         tickers = Ticker.select().where(
-            Ticker.currency == symbol)
+            Ticker.currency == symbol, Ticker.epoch > 1614297600)
 
         for i in range(len(tickers)):
             last_30_tickers = get_last_x_items(tickers, i, 30)
@@ -45,7 +45,7 @@ def start():
     for symbol in SYMBOLS:
         quantity = get_wallet(symbol)
         print('{}: {}'.format(symbol, quantity))
-    print('{}: {}'.format(CURRENCY, get_wallet(CURRENCY)))
+    print('Profit: {}'.format(get_wallet(CURRENCY)))
 
 
 start()
