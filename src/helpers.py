@@ -27,3 +27,7 @@ def send_telegram(action, text):
     url = '{}{}/{}?chat_id={}&text={}'.format(
         API_BASE, TELEGRAM_TOKEN, action, TELEGRAM_CHAT_ID, text)
     requests.get(url)
+
+
+def reverse(lst):
+    return [ele for ele in reversed(lst)]
