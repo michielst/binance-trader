@@ -5,23 +5,40 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go  # or plotly.express as px
 
+from src.helpers import calc_diff, get_last_x_items
 from models import Ticker, Trade
 
 
 def figure(symbol):
     # https://plotly.com/python/line-charts/
-    fig = go.Figure()
+    fig = go.Figure(layout={
+        'yaxis': {'title': 'PRICE axis'},
+        'yaxis2': {'title': 'DIFF axis', 'overlaying': 'y', 'side': 'right'}
+    })
     tickers = Ticker.select().where(
         Ticker.currency == symbol, Ticker.epoch > 1614297600).order_by(-Ticker.epoch)
 
     timestamps = []
     prices = []
-    for ticker in tickers:
-        timestamps.append(ticker.datetime)
-        prices.append(ticker.price)
+    diffs = []
+    # for ticker in tickers:
+    for i in range(len(tickers)):
+        timestamps.append(tickers[i].datetime)
+        prices.append(tickers[i].price)
+
+        last_30_tickers = get_last_x_items(tickers, i, 30)
+        if (len(last_30_tickers) == 30):
+            (diff, diff_pct) = calc_diff(
+                last_30_tickers[0].price, tickers[i].price)
+            diffs.append(diff_pct)
 
     fig.add_trace(go.Scatter(x=timestamps, y=prices, name=symbol,
                              line=dict(color='dodgerblue', width=4)))
+
+    fig.add_bar(x=timestamps, y=diffs, name='diffs', yaxis='y2', offsetgroup=1)
+
+    # fig.add_trace(go.Scatter(x=timestamps, y=diffs, name=symbol,
+    #                          line=dict(color='green', width=4)))
 
     trades = Trade.select().where(Trade.currency == symbol)
 
