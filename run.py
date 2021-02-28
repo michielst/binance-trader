@@ -1,4 +1,5 @@
 import math
+import sys
 import time
 from datetime import datetime
 
@@ -7,6 +8,7 @@ from models import Ticker
 from src.exchanges.binance import get_ticker
 from src.helpers import calc_diff, send_telegram
 from src.strategies.Strategy import Strategy
+from src.wallet import wallet
 
 
 def scrape(currencies):
@@ -71,8 +73,8 @@ def trade():
         print('{} \t => %{} \t{}{}'.format(
             symbol, round(diff_pct, 2), diff, CURRENCY))
 
-        if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
-            log(symbol, diff_pct)
+        # if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+        #     log(symbol, diff_pct)
 
         strategy = Strategy(tickers[0], tickers)
 
@@ -83,7 +85,7 @@ def trade():
             print('SELL')
 
 
-def start():
+def start(test=False):
     starttime = time.time()
     scraper_runs_count = 0
     while True:
@@ -92,10 +94,15 @@ def start():
 
         if scraper_runs_count > 30:
             trade()
+            wallet(test=test)
         else:
             print('starting trader in {} minutes'.format(30 - scraper_runs_count))
 
         time.sleep(60 - ((time.time() - starttime) % 60))
 
 
-start()
+if len(sys.argv) > 0 and sys.argv[1] == 'test':
+    print('STARTING TEST RUN')
+    start(test=True)
+else:
+    start()
