@@ -2,34 +2,27 @@ import math
 import time
 from datetime import datetime
 
-from binance.client import Client
-from binance.exceptions import BinanceAPIException
-
 from env import *
-from helpers import calc_diff, send_telegram
 from models import Ticker
-from strategies import Strategy
-
-client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
+from src.exchanges.binance import get_ticker
+from src.helpers import calc_diff, send_telegram
+from src.strategies.Strategy import Strategy
 
 
 def scrape(currencies):
     tickers = []
     for currency in currencies:
         symbol = "{}{}".format(currency, CURRENCY)
-        try:
-            price = client.get_ticker(symbol=symbol)
-            tickers.append({
-                'currency': currency,
-                'price': price['lastPrice'],
-                'epoch': datetime.now().timestamp(),
-                'datetime': datetime.now()
-            })
-        except BinanceAPIException as e:
-            print(e)
-        else:
-            print("{}: {} price: {}{}".format(
-                datetime.now(), symbol, price['lastPrice'], CURRENCY))
+        price = get_ticker(symbol)
+        tickers.append({
+            'currency': currency,
+            'price': price['lastPrice'],
+            'epoch': datetime.now().timestamp(),
+            'datetime': datetime.now()
+        })
+        print("{}: {} price: {}{}".format(
+            datetime.now(), symbol, price['lastPrice'], CURRENCY))
+
     Ticker.insert_many(tickers).execute()
 
 

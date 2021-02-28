@@ -22,3 +22,4 @@ class Trade(BaseModel):
     type = CharField(max_length=5)
     date = DateTimeField()
     epoch = CharField()
+    test = BooleanField()

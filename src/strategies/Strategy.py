@@ -1,4 +1,4 @@
-from helpers import calc_diff
+from src.helpers import calc_diff
 from models import Trade
 
 
@@ -35,7 +35,12 @@ class Strategy():
         # make sure we dont sell with loss
         last_buy = Trade.select().where(
             Trade.currency == self.ticker.currency, Trade.type == 'buy').order_by(Trade.date.desc()).get()
+
         if last_buy.price >= self.ticker.price:
             return False
+
+        # (profit, profit_pct) = calc_diff(last_buy.price, self.ticker.price)
+        # if profit_pct < 1.0:
+        #     return False
 
         return self.diff_pct >= 2

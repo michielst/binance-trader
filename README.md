@@ -35,6 +35,7 @@ CREATE TABLE "trade" (
 	"date"	TEXT NOT NULL,
 	"type"	TEXT NOT NULL,
 	"epoch"	TEXT NOT NULL,
+	"test"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("id")
 )
 ```
