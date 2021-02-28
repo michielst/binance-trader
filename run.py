@@ -76,13 +76,13 @@ def trade():
         if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
             log(symbol, diff_pct)
 
-        strategy = Strategy(tickers[0], tickers)
+        # strategy = Strategy(tickers[0], tickers)
 
-        if strategy.when_buy():
-            print('BUY')
+        # if strategy.when_buy():
+        #     print('BUY')
 
-        if strategy.when_sell():
-            print('SELL')
+        # if strategy.when_sell():
+        #     print('SELL')
 
 
 def start(test=False):
@@ -90,6 +90,8 @@ def start(test=False):
     scraper_runs_count = 0
     while True:
         scrape(SYMBOLS)
+        # TODO: add trader inside scraper to avoid delay with prices.
+        # => scrape each coin and decide to trade before moving on to scraping the next coin.
         scraper_runs_count += 1
 
         if scraper_runs_count > 30:
