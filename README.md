@@ -8,9 +8,12 @@ Create env.py
 NOMICS_API_KEY='' # Only needed for old code
 BINANCE_API_KEY=''
 BINANCE_API_SECRET=''
-CURRENCY = 'EUR'
-SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM', 'ADA', 'LINK',
-           'LTC', 'BCH', 'BNB', 'EOS', 'GRT', 'DOT', 'SXP', 'YFI']
+# CURRENCY = 'EUR'
+# SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM', 'ADA', 'LINK', 'LTC', 'BCH', 'BNB', 'EOS', 'GRT', 'DOT', 'SXP', 'YFI']
+CURRENCY = 'BUSD'
+SYMBOLS = ['BTC', 'ETH', 'ADA', 'BNB', 'XRP', 'LTC', 'LINK', 'XLM', 'BCH', 'DOGE', 'XMR', 'ATOM', 'EOS',
+           'TRX', 'IOTA', 'ALGO', 'NEO', 'VET', 'XTZ', 'DASH', 'MKR', 'ETC', 'ZIL', 'RVN', 'ZRX', 'WAVES',
+           'BAT', 'ONT', 'NANO', 'LRC', 'ZEC', 'MATIC', 'ICX']
 TELEGRAM_TOKEN = ''
 TELEGRAM_CHAT_ID = ''
 ```

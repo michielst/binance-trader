@@ -73,8 +73,8 @@ def trade():
         print('{} \t => %{} \t{}{}'.format(
             symbol, round(diff_pct, 2), diff, CURRENCY))
 
-        # if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
-        #     log(symbol, diff_pct)
+        if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+            log(symbol, diff_pct)
 
         strategy = Strategy(tickers[0], tickers)
 
@@ -94,7 +94,7 @@ def start(test=False):
 
         if scraper_runs_count > 30:
             trade()
-            wallet(test=test)
+            # wallet(test=test)
         else:
             print('starting trader in {} minutes'.format(30 - scraper_runs_count))
 
