@@ -2,16 +2,22 @@ from env import *
 from models import Ticker, Trade
 from src.helpers import get_last_x_items, reverse
 from src.strategies.Strategy import Strategy
-from src.wallet import get_currency_wallet_value, wallet
+from src.wallet import get_currency_wallet_value, wallet, get_balance
 
 
 def create_backtest_trade(symbol, ticker):
-    order_price = float(15)
+    order_price = float(ORDER_INPUT)
     price = float(ticker.price)
     quantity = (order_price) / (price) * 0.9995
     print('{}: BUYING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity,
                                                    symbol, price, CURRENCY, (quantity * price), CURRENCY))
-    Trade.create(currency=symbol, quantity=quantity, price=ticker.price,
+
+    sale = order_price / price
+    sale_with_fee = sale * 0.9995
+    fee = sale - sale_with_fee
+    total = order_price
+
+    Trade.create(currency=symbol, quantity=quantity, price=ticker.price, fee=fee, total=total,
                  type='buy', date=ticker.datetime, epoch=ticker.epoch, test=True)
 
 
@@ -21,7 +27,13 @@ def create_backtest_sell(symbol, ticker):
     if quantity > 0:
         print('{}: SELLING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity, symbol,
                                                         ticker.price, CURRENCY, (quantity * ticker.price), CURRENCY))
-        Trade.create(currency=symbol, quantity=quantity, price=ticker.price,
+
+        price = ticker.price
+        sale = price * quantity
+        fee = (sale / 100) * 0.1
+        total = sale - fee
+
+        Trade.create(currency=symbol, quantity=quantity, price=ticker.price, fee=fee, total=total,
                      type='sell', date=ticker.datetime, epoch=ticker.epoch, test=True)
 
 

@@ -1,5 +1,7 @@
+from env import *
+from models import Ticker, Trade
 from src.helpers import calc_diff
-from models import Trade, Ticker
+from src.wallet import get_balance
 
 
 class Strategy():
@@ -22,6 +24,9 @@ class Strategy():
             return False
 
         if (self.buys - self.sells) > 0:
+            return False
+
+        if get_balance(test=self.test) < ORDER_INPUT:
             return False
 
         return self.diff_pct <= -3  # <= -5

@@ -28,6 +28,8 @@ def wallet(test=False):
     (profit, profit_pct) = calc_diff(input_value, balance)
     print('PROFIT/LOSS: \t => {}{}'.format(profit, CURRENCY))
     print('PROFIT/LOSS %: \t => %{}'.format(round(profit_pct, 2)))
+    print('CASH BALANCE: \t => {}{} (MAX: {})'.format(
+        get_balance(test=test), CURRENCY, MAX_INPUT))
 
 
 def get_currency_wallet_value(symbol, test=False):
@@ -77,3 +79,20 @@ def get_base_wallet_value(test=False):
     print('INPUT \t\t => {}{}'.format(
         highest_amount_entered, CURRENCY))
     return (total_bought, total_sold, highest_amount_entered)
+
+
+def get_balance(test=False):
+    trades = Trade.select().where(Trade.test == test).order_by(Trade.epoch)
+
+    value = MAX_INPUT
+
+    for trade in trades:
+        order_amount = trade.quantity * trade.price
+
+        if trade.type == 'buy':
+            value -= order_amount
+
+        if trade.type == 'sell':
+            value += order_amount
+
+    return value

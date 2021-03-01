@@ -19,6 +19,8 @@ class Trade(BaseModel):
     currency = CharField(max_length=10)
     quantity = FloatField()
     price = FloatField()
+    fee = FloatField()
+    total = FloatField()
     type = CharField(max_length=5)
     date = DateTimeField()
     epoch = CharField()
