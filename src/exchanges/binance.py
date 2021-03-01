@@ -14,38 +14,38 @@ def get_ticker(symbol):
     try:
         price = client.get_ticker(symbol=symbol)
     except BinanceAPIException as e:
-        print(e)
+        raise ValueError(e)
     else:
         return price
 
 
-def buy(currency, input=MAX_INPUT):
-    # symbol = '{}{}'.format(currency, CURRENCY)
-    # order_price = float(input)
-    # trades = client.get_recent_trades(symbol=symbol)
-    # price = float(trades[0]['price'])
-    # quantity = (order_price) / (price) * 0.9995
-    # print('Buying {}{} at {}{} => {}{}'.format(
-    #     quantity, currency, price, CURRENCY, (quantity * price), CURRENCY))
-    # info = client.get_symbol_info(symbol=symbol)
-    # stepSize = float(info['filters'][2]['stepSize'])
-    # precision = int(round(-math.log(stepSize, 10), 0))
-    # order = client.create_test_order(
-    #     symbol=symbol,
-    #     side=Client.SIDE_BUY,
-    #     type=Client.ORDER_TYPE_MARKET,
-    #     quantity=(round(quantity, precision)))
-    # print(order)
+def buy(currency, input=ORDER_INPUT):
+    symbol = '{}{}'.format(currency, CURRENCY)
+    order_price = float(input)
+    trades = client.get_recent_trades(symbol=symbol)
+    price = float(trades[0]['price'])
+    quantity = (order_price) / (price) * 0.9995
+    info = client.get_symbol_info(symbol=symbol)
+    stepSize = float(info['filters'][2]['stepSize'])
+    precision = int(round(-math.log(stepSize, 10), 0))
 
-    # fee = None
-    # total = None
+    order = client.create_test_order(
+        symbol=symbol,
+        side=Client.SIDE_BUY,
+        type=Client.ORDER_TYPE_MARKET,
+        quantity=(round(quantity, precision)))
 
-    # now = datetime.now()
-    # trade = Trade.create(currency=currency, quantity=quantity, price=order_price, fee=fee, total=total,
-    #                      type='buy', date=now, epoch=now.timestamp(), test=False)
-    # return trade
-    return
-    # todo
+    print(order)
+
+    price = order['fills'][0]['price']
+    total = float(order['cummulativeQuoteQty'])
+    # fee = order['fills'][0]['commission']
+    fee = total - input
+
+    now = datetime.now()
+    trade = Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
+                         type='buy', date=now, epoch=now.timestamp(), test=False)
+    return trade
 
 
 def sell(currency, quantity):

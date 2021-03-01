@@ -12,10 +12,11 @@ def create_backtest_trade(symbol, ticker):
     print('{}: BUYING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity,
                                                    symbol, price, CURRENCY, (quantity * price), CURRENCY))
 
+    # TODO: Figure out calculations
     sale = order_price / price
-    sale_with_fee = sale * 0.9995
-    fee = sale - sale_with_fee
-    total = order_price
+    fee = (sale / 100) * 0.1
+    # total = sale - fee
+    total = price
 
     Trade.create(currency=symbol, quantity=quantity, price=ticker.price, fee=fee, total=total,
                  type='buy', date=ticker.datetime, epoch=ticker.epoch, test=True)
