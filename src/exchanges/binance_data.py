@@ -13,3 +13,12 @@ def get_ticker(symbol):
         raise ValueError(e)
     else:
         return price
+
+
+def get_balance(symbol):
+    try:
+        balance = client.get_asset_balance(asset=symbol)
+    except BinanceAPIException as e:
+        raise ValueError(e)
+    else:
+        return float(balance['free'])

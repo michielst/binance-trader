@@ -8,6 +8,7 @@ from src.wallet import get_currency_wallet_value
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
+from src.exchanges.binance_data import get_balance
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
 
@@ -48,7 +49,7 @@ def buy(currency, input=ORDER_INPUT):
 
 def sell(currency):
     symbol = '{}{}'.format(currency, CURRENCY)
-    quantity = get_currency_wallet_value(currency)
+    quantity = get_balance(currency)
 
     if quantity > 0:
         info = client.get_symbol_info(symbol=symbol)
