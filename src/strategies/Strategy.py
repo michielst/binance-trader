@@ -45,9 +45,6 @@ class Strategy():
         (profit, profit_pct) = calc_diff(last_buy.price, self.ticker.price)
         self.profit_pct = profit_pct
 
-        if profit_pct < 10:
-            return True  # sell with loss just to get out.
-
         if last_buy.price >= self.ticker.price or profit_pct <= 1.5:
             return False
 
