@@ -5,9 +5,9 @@
 Create env.py
 
 ```
-NOMICS_API_KEY='' # Only needed for old code
 TELEGRAM_TOKEN = ''
-TELEGRAM_CHAT_ID = ''
+TELEGRAM_PUBLIC_CHAT_ID = ''
+TELEGRAM_PRIVATE_CHAT_ID = ''
 BINANCE_API_KEY=''
 BINANCE_API_SECRET=''
 

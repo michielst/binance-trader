@@ -3,6 +3,7 @@ from datetime import datetime
 
 from env import *
 from models import Trade
+from src.helpers import send_private_telegram
 from src.wallet import get_currency_wallet_value
 
 from binance.client import Client
@@ -40,6 +41,10 @@ def buy(currency, input=ORDER_INPUT):
     Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
                  type='buy', date=now, epoch=now.timestamp(), test=False)
 
+    if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
+        send_private_telegram(
+            '{} {} BOUGHT FOR {}{}'.format(quantity, currency, CURRENCY, total))
+
 
 def sell(currency):
     symbol = '{}{}'.format(currency, CURRENCY)
@@ -68,3 +73,7 @@ def sell(currency):
         now = datetime.now()
         Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
                      type='sell', date=now, epoch=now.timestamp(), test=False)
+
+        if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
+            send_private_telegram('{} {} SOLD FOR {}{}'.format(
+                quantity, currency, CURRENCY, total))

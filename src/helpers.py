@@ -22,10 +22,18 @@ def get_last_x_items(items, index, amount):
     return last_x
 
 
-def send_telegram(action, text):
+def send_private_telegram(text):
+    _send_telegram(text, TELEGRAM_PRIVATE_CHAT_ID)
+
+
+def send_public_telegram(text):
+    _send_telegram(text, TELEGRAM_PUBLIC_CHAT_ID)
+
+
+def _send_telegram(text, chat_id):
     API_BASE = 'https://api.telegram.org/bot'
     url = '{}{}/{}?chat_id={}&text={}'.format(
-        API_BASE, TELEGRAM_TOKEN, action, TELEGRAM_CHAT_ID, text)
+        API_BASE, TELEGRAM_TOKEN, 'sendMessage', chat_id, text)
     requests.get(url)
 
 
