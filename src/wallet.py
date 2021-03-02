@@ -9,7 +9,7 @@ def wallet(test=False):
     print('------------------WALLET-----------------')
     total_wallet_value = 0
     for symbol in SYMBOLS:
-        quantity = get_currency_wallet_value(symbol, test=True)
+        quantity = get_currency_wallet_value(symbol, test=test)
         if quantity > 0:
             price = get_ticker("{}{}".format(symbol, CURRENCY))
             current_price = quantity * float(price['lastPrice'])
@@ -20,7 +20,7 @@ def wallet(test=False):
         round(total_wallet_value, 4), CURRENCY))
 
     print('\n--------------TRADES PROFIT--------------')
-    (total_bought, total_sold, input_value) = get_base_wallet_value(test=True)
+    (total_bought, total_sold, input_value) = get_base_wallet_value(test=test)
 
     print('\n--------------TOTAL BALANCE--------------')
     balance = input_value + (total_sold - total_bought) + total_wallet_value

@@ -97,4 +97,7 @@ if len(sys.argv) > 1:
         start(test=True)
 
     if arg == 'wallet':
-        wallet()
+        if len(sys.argv) == 3 and sys.argv[2] == 'test':
+            wallet(test=True)
+        else:
+            wallet()

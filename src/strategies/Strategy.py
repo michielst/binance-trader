@@ -46,7 +46,7 @@ class Strategy():
             return False
 
         (profit, profit_pct) = calc_diff(last_buy.price, self.ticker.price)
-        if profit_pct < 0.5:
+        if profit_pct < 1.5:
             return False
 
         return self.diff_pct >= 2
