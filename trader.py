@@ -13,11 +13,11 @@ from src.wallet import wallet
 
 
 def log(symbol, diff_pct, price):
-    if diff_pct >= 3.5:
+    if diff_pct >= 5:
         send_public_telegram('🟢 {} UP %{} (${})'.format(
             symbol, round(diff_pct, 2), round(price, 4)))
 
-    if diff_pct <= -3.5:
+    if diff_pct <= -5:
         send_public_telegram('🔴 {} DOWN %{} (${})'.format(
             symbol, round(diff_pct, 2), round(price, 4)))
 
