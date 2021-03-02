@@ -4,7 +4,9 @@ from datetime import datetime
 
 from env import *
 from models import Ticker
-from src.exchanges.binance import get_ticker, buy, sell
+from src.exchanges.binance_data import get_ticker
+from src.exchanges.binance import buy, sell
+from src.exchanges.test import test_buy, test_sell
 from src.helpers import calc_diff, send_telegram
 from src.strategies.Strategy import Strategy
 from src.wallet import wallet
@@ -34,11 +36,19 @@ def trade(symbol, test=False):
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         log(symbol, strategy.diff_pct)
 
-    if strategy.when_buy():
-        print('BUY')
+    if test is True:
+        if strategy.when_buy():
+            test_buy(symbol, strategy.ticker)
 
-    if strategy.when_sell():
-        print('SELL')
+        if strategy.when_sell():
+            test_sell(symbol, strategy.ticker)
+
+    elif test is False:
+        if strategy.when_buy():
+            buy(symbol)
+
+        if strategy.when_sell():
+            sell(symbol, strategy.ticker)
 
 
 def scrape(currency):
@@ -59,6 +69,7 @@ def start(test=False):
     starttime = time.time()
     scrape_preparation_minutes = 30
     scraper_runs_count = 0
+
     while True:
         scraper_runs_count += 1
 
@@ -74,8 +85,16 @@ def start(test=False):
         time.sleep(60 - ((time.time() - starttime) % 60))
 
 
-if len(sys.argv) > 1 and sys.argv[1] == 'test':
-    print('STARTING TEST RUN')
-    start(test=True)
-else:
+if len(sys.argv) == 1:
+    print('STARTING TRADER. !WARNING: MONEY WILL BE SPENT!')
     start()
+
+if len(sys.argv) > 1:
+    arg = sys.argv[1]
+
+    if arg == 'test':
+        print('STARTING TEST RUN')
+        start(test=True)
+
+    if arg == 'wallet':
+        wallet()

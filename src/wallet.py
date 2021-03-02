@@ -1,7 +1,7 @@
 from env import *
 from models import Trade
 
-from src.exchanges.binance import get_ticker
+from src.exchanges.binance_data import get_ticker
 from src.helpers import calc_diff
 
 

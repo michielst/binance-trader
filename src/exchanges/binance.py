@@ -3,6 +3,7 @@ from datetime import datetime
 
 from env import *
 from models import Trade
+from src.wallet import get_currency_wallet_value
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -10,26 +11,17 @@ from binance.exceptions import BinanceAPIException
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
 
 
-def get_ticker(symbol):
-    try:
-        price = client.get_ticker(symbol=symbol)
-    except BinanceAPIException as e:
-        raise ValueError(e)
-    else:
-        return price
-
-
 def buy(currency, input=ORDER_INPUT):
     symbol = '{}{}'.format(currency, CURRENCY)
     order_price = float(input)
     trades = client.get_recent_trades(symbol=symbol)
     price = float(trades[0]['price'])
-    quantity = (order_price) / (price) * 0.9995
+    quantity = order_price / price
     info = client.get_symbol_info(symbol=symbol)
     stepSize = float(info['filters'][2]['stepSize'])
     precision = int(round(-math.log(stepSize, 10), 0))
 
-    order = client.create_test_order(
+    order = client.create_order(
         symbol=symbol,
         side=Client.SIDE_BUY,
         type=Client.ORDER_TYPE_MARKET,
@@ -37,35 +29,42 @@ def buy(currency, input=ORDER_INPUT):
 
     print(order)
 
-    price = order['fills'][0]['price']
+    quantity = float(order['fills'][0]['qty'])
+    commission = float(order['fills'][0]['commission'])
+    quantity = quantity - commission
+    price = float(order['fills'][0]['price'])
     total = float(order['cummulativeQuoteQty'])
-    # fee = order['fills'][0]['commission']
-    fee = total - input
+    fee = commission * price
 
     now = datetime.now()
-    trade = Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
-                         type='buy', date=now, epoch=now.timestamp(), test=False)
-    return trade
+    Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
+                 type='buy', date=now, epoch=now.timestamp(), test=False)
 
 
-def sell(currency, quantity):
+def sell(currency):
     symbol = '{}{}'.format(currency, CURRENCY)
+    quantity = get_currency_wallet_value(currency)
 
-    order = client.create_test_order(
-        symbol=symbol,
-        side=Client.SIDE_SELL,
-        type=Client.ORDER_TYPE_MARKET,
-        quantity=quantity
-    )
+    if quantity > 0:
+        info = client.get_symbol_info(symbol=symbol)
+        stepSize = float(info['filters'][2]['stepSize'])
+        precision = int(round(-math.log(stepSize, 10), 0))
 
-    print(order)
+        order = client.create_order(
+            symbol=symbol,
+            side=Client.SIDE_SELL,
+            type=Client.ORDER_TYPE_MARKET,
+            quantity=round(quantity, precision)
+        )
 
-    price = order['cummulativeQuoteQty']
-    fee = order['fills'][0]['commission']
-    total = price - fee
+        print(order)
 
-    now = datetime.now()
-    trade = Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
-                         type='sell', date=now, epoch=now.timestamp(), test=False)
+        quantity = float(order['fills'][0]['qty'])
+        price = float(order['fills'][0]['price'])
+        fee = float(order['fills'][0]['commission'])
+        total = float(order['cummulativeQuoteQty'])
+        total = total - fee
 
-    return trade
+        now = datetime.now()
+        Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
+                     type='sell', date=now, epoch=now.timestamp(), test=False)

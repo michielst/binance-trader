@@ -1,41 +1,9 @@
 from env import *
-from models import Ticker, Trade
+from models import Ticker
+from src.exchanges.test import test_buy, test_sell
 from src.helpers import get_last_x_items, reverse
 from src.strategies.Strategy import Strategy
-from src.wallet import get_currency_wallet_value, wallet, get_balance
-
-
-def create_backtest_trade(symbol, ticker):
-    order_price = float(ORDER_INPUT)
-    price = float(ticker.price)
-    quantity = (order_price) / (price) * 0.9995
-    print('{}: BUYING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity,
-                                                   symbol, price, CURRENCY, (quantity * price), CURRENCY))
-
-    # TODO: Figure out calculations
-    sale = order_price / price
-    fee = (sale / 100) * 0.1
-    # total = sale - fee
-    total = price
-
-    Trade.create(currency=symbol, quantity=quantity, price=ticker.price, fee=fee, total=total,
-                 type='buy', date=ticker.datetime, epoch=ticker.epoch, test=True)
-
-
-def create_backtest_sell(symbol, ticker):
-    quantity = get_currency_wallet_value(symbol, test=True)
-
-    if quantity > 0:
-        print('{}: SELLING {}{} at {}{} => {}{}'.format(ticker.datetime, quantity, symbol,
-                                                        ticker.price, CURRENCY, (quantity * ticker.price), CURRENCY))
-
-        price = ticker.price
-        sale = price * quantity
-        fee = (sale / 100) * 0.1
-        total = sale - fee
-
-        Trade.create(currency=symbol, quantity=quantity, price=ticker.price, fee=fee, total=total,
-                     type='sell', date=ticker.datetime, epoch=ticker.epoch, test=True)
+from src.wallet import wallet
 
 
 def start():
@@ -52,10 +20,10 @@ def start():
             strategy = Strategy(last_30_tickers, test=True)
 
             if strategy.when_buy():
-                create_backtest_trade(symbol, strategy.ticker)
+                test_buy(symbol, strategy.ticker)
 
             if strategy.when_sell():
-                create_backtest_sell(symbol, strategy.ticker)
+                test_sell(symbol, strategy.ticker)
 
     wallet(test=True)
 
