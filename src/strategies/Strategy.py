@@ -42,10 +42,12 @@ class Strategy():
         last_buy = Trade.select().where(Trade.test == self.test, Trade.currency ==
                                         self.ticker.currency, Trade.type == 'buy').order_by(Trade.date.desc()).get()
 
+        (profit, profit_pct) = calc_diff(last_buy.price, self.ticker.price)
+        self.profit_pct = profit_pct
+
         if last_buy.price >= self.ticker.price:
             return False
 
-        (profit, profit_pct) = calc_diff(last_buy.price, self.ticker.price)
         if profit_pct < 1.5:
             return False
 

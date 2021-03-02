@@ -50,6 +50,10 @@ def trade(symbol, test=False):
         if strategy.when_sell():
             sell(symbol)
 
+        # print out current profit percentage when available.
+        if hasattr(strategy, 'profit_pct'):
+            print('PROFIT_PCT: %{}'.format(round(strategy.profit_pct, 2)))
+
 
 def scrape(currency):
     symbol = "{}{}".format(currency, CURRENCY)
