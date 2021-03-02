@@ -9,7 +9,7 @@ from src.wallet import wallet
 def start():
     for symbol in SYMBOLS:
         tickers = reverse(Ticker.select().where(Ticker.currency == symbol,
-                                                Ticker.epoch > 1614297600).order_by(-Ticker.epoch))
+                                                Ticker.epoch > 1614592800).order_by(-Ticker.epoch))
 
         for i in range(len(tickers)):
             last_30_tickers = reverse(get_last_x_items(tickers, i, 30))

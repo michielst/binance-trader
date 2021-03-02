@@ -16,7 +16,7 @@ def figure(symbol):
         'yaxis2': {'title': 'DIFF axis', 'overlaying': 'y', 'side': 'right'}
     })
     tickers = Ticker.select().where(
-        Ticker.currency == symbol, Ticker.epoch > 1614297600).order_by(-Ticker.epoch)
+        Ticker.currency == symbol, Ticker.epoch > 1614592800).order_by(-Ticker.epoch)
 
     timestamps = []
     prices = []
