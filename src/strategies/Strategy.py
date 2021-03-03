@@ -48,7 +48,7 @@ class Strategy():
         if last_buy.price >= self.ticker.price or profit_pct <= 1.5:
             return False
 
-        if profit_pct >= 3:
+        if profit_pct >= 5:
             return True
 
         return self.diff_pct >= 2
