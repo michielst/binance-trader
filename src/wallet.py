@@ -6,7 +6,7 @@ from src.helpers import calc_diff
 
 
 def wallet(test=False):
-    print('------------------WALLET-----------------')
+    print('--WALLET')
     total_wallet_value = 0
     for symbol in SYMBOLS:
         quantity = get_currency_wallet_value(symbol, test=test)
@@ -19,10 +19,16 @@ def wallet(test=False):
     print('TOTAL VALUE: \t => {}{}'.format(
         round(total_wallet_value, 4), CURRENCY))
 
-    print('\n--------------TRADES PROFIT--------------')
+    print('\n--PROFIT PER COIN')
+    for symbol in SYMBOLS:
+        profit = calculate_profit(symbol, test)
+        if profit != 0:
+            print('{}: ${}'.format(symbol, round(profit, 2)))
+
+    print('\n--TRADES')
     (total_bought, total_sold, input_value) = get_base_wallet_value(test=test)
 
-    print('\n--------------TOTAL BALANCE--------------')
+    print('\n--TOTAL BALANCE')
     balance = input_value + (total_sold - total_bought) + total_wallet_value
     print('BALANCE: \t => {}'.format(balance))
     (profit, profit_pct) = calc_diff(input_value, balance)
