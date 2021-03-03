@@ -43,8 +43,8 @@ def buy(currency, input=ORDER_INPUT):
                  type='buy', date=now, epoch=now.timestamp(), test=False)
 
     if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
-        send_private_telegram(
-            '{} {} BOUGHT FOR {}{}'.format(quantity, currency, CURRENCY, total))
+        send_private_telegram('{} {} BOUGHT FOR {}{}'.format(
+            quantity, currency, round(total, 2), CURRENCY))
 
 
 def sell(currency):
@@ -77,4 +77,4 @@ def sell(currency):
 
         if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
             send_private_telegram('{} {} SOLD FOR {}{}'.format(
-                quantity, currency, CURRENCY, total))
+                quantity, currency, round(total, 2), CURRENCY))
