@@ -39,3 +39,8 @@ def _send_telegram(text, chat_id):
 
 def reverse(lst):
     return [ele for ele in reversed(lst)]
+
+
+def round_down(value, decimals):
+    factor = 1 / (10 ** decimals)
+    return (value // factor) * factor

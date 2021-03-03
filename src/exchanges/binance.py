@@ -3,7 +3,7 @@ from datetime import datetime
 
 from env import *
 from models import Trade
-from src.helpers import send_private_telegram
+from src.helpers import send_private_telegram, round_down
 from src.wallet import get_currency_wallet_value
 
 from binance.client import Client
@@ -60,7 +60,7 @@ def sell(currency):
             symbol=symbol,
             side=Client.SIDE_SELL,
             type=Client.ORDER_TYPE_MARKET,
-            quantity=round(quantity, precision)
+            quantity=round_down(quantity, precision)
         )
 
         print(order)
