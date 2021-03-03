@@ -31,8 +31,12 @@ def buy(currency, input=ORDER_INPUT):
 
     print(order)
 
-    quantity = float(order['fills'][0]['qty'])
-    commission = float(order['fills'][0]['commission'])
+    quantity = 0
+    commission = 0
+    for fill in order['fills']:
+        commission += fill['commission']
+        quantity += float(order['qty'])
+
     quantity = quantity - commission
     price = float(order['fills'][0]['price'])
     total = float(order['cummulativeQuoteQty'])
@@ -69,9 +73,13 @@ def sell(currency):
 
         print(order)
 
-        quantity = float(order['fills'][0]['qty'])
+        quantity = 0
+        fee = 0
+        for fill in order['fills']:
+            fee += float(fill['commission'])
+            quantity += float(order['qty'])
+
         price = float(order['fills'][0]['price'])
-        fee = float(order['fills'][0]['commission'])
         total = float(order['cummulativeQuoteQty'])
         total = total - fee
 
