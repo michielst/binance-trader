@@ -1,3 +1,6 @@
+import decimal
+import math
+
 import requests
 from env import *
 
@@ -42,5 +45,7 @@ def reverse(lst):
 
 
 def round_down(value, decimals):
-    factor = 1 / (10 ** decimals)
-    return (value // factor) * factor
+    with decimal.localcontext() as ctx:
+        d = decimal.Decimal(value)
+        ctx.rounding = decimal.ROUND_DOWN
+        return round(d, decimals)
