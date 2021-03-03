@@ -29,7 +29,7 @@ class Strategy():
         if get_balance(test=self.test) < ORDER_INPUT:
             return False
 
-        return self.diff_pct <= -3.75
+        return self.diff_pct <= -3.2
 
     def when_sell(self):
         if len(self.tickers) != 30:
