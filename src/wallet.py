@@ -106,9 +106,26 @@ def get_quantity(currency, test=False):
 
     for trade in trades:
         if trade.type == 'buy':
-            quantity -= trade.quantity
-
-        if trade.type == 'sell':
             quantity += trade.quantity
 
+        if trade.type == 'sell':
+            quantity -= trade.quantity
+
     return quantity
+
+
+def calculate_profit(currency, test=False):
+    trades = Trade.select().where(Trade.currency == currency,
+                                  Trade.test == test).order_by(Trade.epoch)
+
+    profit = 0
+
+    for i in range(len(trades)):
+        if trades[i].type == 'sell':
+            profit += trades[i].total
+
+        if i+1 != len(trades):
+            if trades[i].type == 'buy':
+                profit -= trades[i].total
+
+    return profit
