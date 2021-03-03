@@ -4,7 +4,7 @@ from datetime import datetime
 from env import *
 from models import Trade
 from src.helpers import send_private_telegram, round_down
-from src.wallet import get_currency_wallet_value
+from src.wallet import get_currency_wallet_value, get_quantity
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -49,12 +49,16 @@ def buy(currency, input=ORDER_INPUT):
 
 def sell(currency):
     symbol = '{}{}'.format(currency, CURRENCY)
-    quantity = get_balance(currency)
+    balance = get_balance(currency)
+    quantity = get_quantity(currency)
 
     if quantity > 0:
         info = client.get_symbol_info(symbol=symbol)
         stepSize = float(info['filters'][2]['stepSize'])
         precision = int(round(-math.log(stepSize, 10), 0))
+
+        if quantity >= balance:
+            quantity = balance
 
         order = client.create_order(
             symbol=symbol,

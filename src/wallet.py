@@ -96,3 +96,19 @@ def get_balance(test=False):
             value += order_amount
 
     return value
+
+
+def get_quantity(currency, test=False):
+    trades = Trade.select().where(Trade.currency == currency,
+                                  Trade.test == test).order_by(Trade.epoch)
+
+    quantity = 0
+
+    for trade in trades:
+        if trade.type == 'buy':
+            quantity -= trade.quantity
+
+        if trade.type == 'sell':
+            quantity += trade.quantity
+
+    return quantity
