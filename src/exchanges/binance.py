@@ -34,7 +34,7 @@ def buy(currency, input=ORDER_INPUT):
     quantity = 0
     commission = 0
     for fill in order['fills']:
-        commission += fill['commission']
+        commission += float(fill['commission'])
         quantity += float(fill['qty'])
 
     quantity = quantity - commission
