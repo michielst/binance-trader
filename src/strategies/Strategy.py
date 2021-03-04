@@ -51,4 +51,4 @@ class Strategy():
         if profit_pct >= 5:
             return True
 
-        return self.diff_pct >= 2
+        return self.diff_pct >= 3
