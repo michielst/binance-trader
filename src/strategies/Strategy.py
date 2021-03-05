@@ -47,10 +47,14 @@ class Strategy():
         self.profit = (last_buy.quantity * self.ticker.price) - \
             (last_buy.quantity * last_buy.price)
 
-        if last_buy.price >= self.ticker.price or profit_pct <= 1.5:
-            return False
-
-        if profit_pct >= 5:
+        # sell at loss when -15%
+        if profit_pct <= -10:
             return True
 
-        return self.diff_pct >= 3
+        if last_buy.price >= self.ticker.price or profit_pct <= 5:
+            return False
+
+        if profit_pct >= 10:
+            return True
+
+        return self.diff_pct >= 2.75
