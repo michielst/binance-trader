@@ -61,9 +61,10 @@ def scrape(currency):
 
     try:
         price = get_ticker(symbol)
-        now = datetime.now()
-        Ticker.create(currency=currency,
-                      price=price['lastPrice'], epoch=now.timestamp(), datetime=now)
+        if price is not None:
+            now = datetime.now()
+            Ticker.create(currency=currency,
+                          price=price['lastPrice'], epoch=now.timestamp(), datetime=now)
     except ValueError as e:
         print(e)
 
