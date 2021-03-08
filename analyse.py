@@ -16,7 +16,7 @@ def figure(symbol):
         'yaxis2': {'title': 'DIFF axis', 'overlaying': 'y', 'side': 'right'}
     })
     tickers = Ticker.select().where(
-        Ticker.currency == symbol, Ticker.epoch > 1614592800).order_by(-Ticker.epoch)
+        Ticker.currency == symbol, Ticker.epoch > 1614809646).order_by(-Ticker.epoch)
 
     timestamps = []
     prices = []
@@ -35,7 +35,7 @@ def figure(symbol):
     fig.add_trace(go.Scatter(x=timestamps, y=prices, name=symbol,
                              line=dict(color='dodgerblue', width=4)))
 
-    fig.add_bar(x=timestamps, y=diffs, name='diffs', yaxis='y2', offsetgroup=1)
+    # fig.add_bar(x=timestamps, y=diffs, name='diffs', yaxis='y2', offsetgroup=1)
 
     # fig.add_trace(go.Scatter(x=timestamps, y=diffs, name=symbol,
     #                          line=dict(color='green', width=4)))

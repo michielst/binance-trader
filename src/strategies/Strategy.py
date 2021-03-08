@@ -29,7 +29,7 @@ class Strategy():
         if get_balance(test=self.test) < ORDER_INPUT:
             return False
 
-        return self.diff_pct <= -3.2
+        return self.diff_pct <= -4
 
     def when_sell(self):
         if len(self.tickers) != 30:
@@ -47,14 +47,14 @@ class Strategy():
         self.profit = (last_buy.quantity * self.ticker.price) - \
             (last_buy.quantity * last_buy.price)
 
-        # sell at loss when -15%
+        # sell at loss when -10%
         if profit_pct <= -10:
             return True
 
         if last_buy.price >= self.ticker.price or profit_pct <= 5:
             return False
 
-        if profit_pct >= 10:
+        if profit_pct >= 5:
             return True
 
         return self.diff_pct >= 2.75
