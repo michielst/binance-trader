@@ -29,7 +29,13 @@ class Strategy():
         if get_balance(test=self.test) < ORDER_INPUT:
             return False
 
-        return self.diff_pct <= -4
+        if self.diff_pct >= -4:
+            return False
+
+        last_hour_tickers = Ticker.select().where(Ticker.currency == self.ticker.currency).order_by(-Ticker.epoch).limit(60)
+        (last_hour_diff, last_hour_diff_pct) = calc_diff(last_hour_tickers[0].price, self.ticker.price)
+
+        return last_hour_diff_pct <= 6
 
     def when_sell(self):
         if len(self.tickers) != 30:
