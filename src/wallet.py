@@ -9,8 +9,8 @@ def wallet(test=False):
     print('--WALLET')
     total_wallet_value = 0
     for symbol in SYMBOLS:
-        quantity = get_currency_wallet_value(symbol, test=test)
-        if quantity > 0:
+        (quantity, value) = get_currency_wallet_value(symbol, test=test)
+        if quantity > 0 and value > 10:
             price = get_ticker("{}{}".format(symbol, CURRENCY))
             current_price = quantity * float(price['lastPrice'])
             print('{}: {} \t => {}{}'.format(symbol, round(
@@ -41,6 +41,7 @@ def wallet(test=False):
 def get_currency_wallet_value(symbol, test=False):
     wallet = Trade.select().where(Trade.currency == symbol, Trade.test == test)
     quantity = 0
+    value = 0
 
     for trade in wallet:
         if trade.type == 'buy':
@@ -48,7 +49,9 @@ def get_currency_wallet_value(symbol, test=False):
         elif trade.type == 'sell':
             quantity -= trade.quantity
 
-    return quantity
+        value = quantity * trade.price
+
+    return (quantity, value)
 
 
 def get_base_wallet_value(test=False):
