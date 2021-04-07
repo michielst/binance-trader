@@ -15,9 +15,8 @@ BINANCE_API_SECRET=''
 # CURRENCY = 'EUR'
 # SYMBOLS = ['ETH', 'BTC', 'XRP', 'DOGE', 'XLM', 'ADA', 'LINK', 'LTC', 'BCH', 'BNB', 'EOS', 'GRT', 'DOT', 'SXP', 'YFI']
 CURRENCY = 'BUSD'
-SYMBOLS = ['BTC', 'ETH', 'ADA', 'BNB', 'XRP', 'LTC', 'LINK', 'XLM', 'BCH', 'DOGE', 'XMR', 'ATOM', 'EOS',
-           'TRX', 'IOTA', 'ALGO', 'NEO', 'VET', 'XTZ', 'DASH', 'MKR', 'ETC', 'ZIL', 'RVN', 'ZRX', 'WAVES',
-           'BAT', 'ONT', 'NANO', 'LRC', 'ZEC', 'MATIC', 'ICX']
+SYMBOLS = ['ADA', 'LTC', 'BNB', 'XRP', 'LINK', 'XLM', 'BCH', 'DOGE', 'XMR', 'ATOM', 'EOS',
+           'TRX', 'IOTA', 'ALGO', 'NEO', 'VET', 'XTZ', 'DASH', 'MKR', 'ETC', 'ZIL', 'RVN', 'ZRX', 'WAVES', 'BAT', 'ONT', 'NANO', 'LRC', 'ZEC', 'MATIC', 'ICX', 'HBAR', 'QTUM', 'DGB', 'XVG', 'KNC', 'BTT', 'IOST', 'WRX', 'ANT', 'SXP', 'NMR', 'BAND']
 MAX_INPUT = 100
 ORDER_INPUT = 15
 ```
