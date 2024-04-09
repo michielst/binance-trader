@@ -6,6 +6,7 @@ class IndicatorStrategy():
     def __init__(self, symbol, price, test=False, simulate=False, simulate_df=None):
         self.test = test
         self.symbol = symbol
+        self.position_held = False
         self.price = float(price)
         self.fib_levels = None
 
@@ -95,6 +96,7 @@ class IndicatorStrategy():
         near_fib_support = any(self.price <= level * 1.03 and self.price > level for level in [self.fib_levels['23.6'], self.fib_levels['38.2'], self.fib_levels['61.8']])
     
         if near_fib_support and rsi_oversold_improving and macd_cross:
+            self.position_held = True
             return True
         return False
 
@@ -113,5 +115,6 @@ class IndicatorStrategy():
         near_fib_resistance = any(self.price >= level * 0.97 and self.price < level for level in [self.fib_levels['61.8'], self.fib_levels['78.6']]) or self.price >= self.fib_levels['high'] * 0.97
 
         if near_fib_resistance and (rsi_overbought_stabilizing or macd_cross_bearish):
+            self.position_held = False
             return True
         return False
