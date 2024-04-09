@@ -58,4 +58,4 @@ end_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 for symbol in symbols:
     profit = simulate_trades(symbol, interval, start_str, end_str, test=True)
-    print(f"==>Simulated profit with {symbol} over the period: ${profit:.2f}")
+    print(f"Simulated profit with {symbol} over the period: ${profit:.2f}")

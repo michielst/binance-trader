@@ -3,8 +3,8 @@ from datetime import datetime
 
 from env import *
 from models import Trade
-from src.helpers import send_private_telegram, round_down
-from src.wallet import get_currency_wallet_value, get_quantity
+from src.helpers import round_down
+from src.data import get_quantity
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -13,8 +13,8 @@ from src.exchanges.binance_data import get_balance
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
 
 
-def buy(currency, input=ORDER_INPUT):
-    symbol = '{}{}'.format(currency, CURRENCY)
+def buy(symbol, input=ORDER_INPUT):
+    symbol = '{}{}'.format(symbol, CURRENCY)
     order_price = float(input)
     trades = client.get_recent_trades(symbol=symbol)
     price = float(trades[0]['price'])
@@ -43,18 +43,12 @@ def buy(currency, input=ORDER_INPUT):
     fee = commission * price
 
     now = datetime.now()
-    Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
-                 type='buy', date=now, epoch=now.timestamp(), test=False)
+    Trade.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='buy', date=now)
 
-    if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
-        send_private_telegram('{} {} BOUGHT FOR {}{}'.format(
-            quantity, currency, round(total, 2), CURRENCY))
-
-
-def sell(currency):
-    symbol = '{}{}'.format(currency, CURRENCY)
-    balance = get_balance(currency)
-    quantity = get_quantity(currency)
+def sell(symbol):
+    symbol = '{}{}'.format(symbol, CURRENCY)
+    balance = get_balance(symbol)
+    quantity = get_quantity(symbol)
 
     if quantity > 0:
         info = client.get_symbol_info(symbol=symbol)
@@ -84,9 +78,4 @@ def sell(currency):
         total = total - fee
 
         now = datetime.now()
-        Trade.create(currency=currency, quantity=quantity, price=price, fee=fee, total=total,
-                     type='sell', date=now, epoch=now.timestamp(), test=False)
-
-        if TELEGRAM_TOKEN and TELEGRAM_PRIVATE_CHAT_ID:
-            send_private_telegram('{} {} SOLD FOR {}{}'.format(
-                quantity, currency, round(total, 2), CURRENCY))
+        Trade.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='sell', date=now)
