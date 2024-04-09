@@ -1,5 +1,4 @@
 requests==2.25.0
 peewee==3.14.0
 python-binance==0.7.9
-dash==1.19.0
 pandas==1.4.0

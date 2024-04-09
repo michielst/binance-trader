@@ -9,14 +9,14 @@ class BaseModel(Model):
 
 
 class Ticker(BaseModel):
-    currency = CharField(max_length=10)
+    symbol = CharField(max_length=10)
     epoch = CharField()
     datetime = DateTimeField()
     price = FloatField()
 
 
 class Trade(BaseModel):
-    currency = CharField(max_length=10)
+    symbol = CharField(max_length=10)
     quantity = FloatField()  # Amount received in wallet (fees already subtracted)
     price = FloatField()
     fee = FloatField()  # Total fee paid in CURRENCY

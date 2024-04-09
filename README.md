@@ -26,16 +26,16 @@ Create database tables
 ```
 CREATE TABLE "ticker" (
 	"id"	INTEGER NOT NULL,
-	"currency"	TEXT NOT NULL,
+	"symbol"	TEXT NOT NULL,
 	"price"	REAL NOT NULL,
 	"epoch"	TEXT NOT NULL,
 	"datetime"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
-)
+);
 
 CREATE TABLE "trade" (
 	"id"	INTEGER NOT NULL UNIQUE,
-	"currency"	TEXT NOT NULL,
+	"symbol"	TEXT NOT NULL,
 	"quantity"	REAL NOT NULL,
 	"price"	REAL NOT NULL,
 	"fee"	REAL NOT NULL,
@@ -44,5 +44,5 @@ CREATE TABLE "trade" (
 	"type"	TEXT NOT NULL,
 	"test"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("id")
-)
+);
 ```
