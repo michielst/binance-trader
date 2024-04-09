@@ -41,6 +41,11 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
     candles = client.get_historical_klines(symbol, interval, start_str, end_str=end_str)
     df = pd.DataFrame(candles, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_asset_volume', 'trades', 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'])
     df['close'] = pd.to_numeric(df['close'])
+    
+    # Convert 'open_time' and 'close_time' from milliseconds to datetime
+    df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
+    df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
+    
     return df
 
 

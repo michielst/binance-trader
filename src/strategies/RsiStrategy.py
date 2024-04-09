@@ -20,8 +20,8 @@ class RsiStrategy():
             self.log()
 
         # Trades
-        self.buys = Trade.select().where(Trade.test == self.test, Trade.currency == self.symbol, Trade.type == 'buy').count()
-        self.sells = Trade.select().where(Trade.test == self.test, Trade.currency == self.symbol, Trade.type == 'sell').count()
+        # self.buys = Trade.select().where(Trade.test == self.test, Trade.currency == self.symbol, Trade.type == 'buy').count()
+        # self.sells = Trade.select().where(Trade.test == self.test, Trade.currency == self.symbol, Trade.type == 'sell').count()
         
     def simulate_indicators(self, current_df):
         self.rsi = calculate_rsi(current_df, 14)
@@ -44,16 +44,15 @@ class RsiStrategy():
         self.upper_band, self.middle_band, self.lower_band = calculate_bollinger_bands(self.df.tail(20 + 2), 20)  # +2 as a small buffer
 
     def when_buy(self):
-        return True
-        
-        # Buy logic: Add condition for price touching or crossing below the lower Bollinger Band
-        if (self.rsi < 30 and self.price > self.ma200 and self.macd_line > self.signal_line and self.price <= self.lower_band and (self.buys - self.sells) <= 0):
+        # Simplified buy logic: Consider buying when RSI indicates potential upward momentum
+        # or when the price is below the lower Bollinger Band indicating potential undervaluation.
+        if (self.rsi < 30 or (self.macd_line > self.signal_line and self.price <= self.lower_band)):
             return True
         return False
 
     def when_sell(self):
-        # Sell logic: Add condition for price touching or crossing above the upper Bollinger Band
-        if ((self.rsi > 70 or self.macd_line < self.signal_line) and self.price >= self.upper_band and (self.buys - self.sells) > 0):
+        # if (self.buys - self.sells) > 0:
+        if (self.rsi > 70 or self.macd_line < self.signal_line) and self.price >= self.upper_band:
             return True
         return False
 
