@@ -1,4 +1,4 @@
-from pandas import pd
+import pandas as pd
 from models import Trade
 
 
@@ -15,4 +15,3 @@ def get_quantity(symbol):
             quantity -= trade.quantity
 
     return quantity
-

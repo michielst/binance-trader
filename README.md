@@ -28,12 +28,11 @@ CREATE TABLE "ticker" (
 	"id"	INTEGER NOT NULL,
 	"symbol"	TEXT NOT NULL,
 	"price"	REAL NOT NULL,
-	"epoch"	TEXT NOT NULL,
-	"datetime"	TEXT,
+	"date"	DATE NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 
-CREATE TABLE "trade" (
+CREATE TABLE "orders" (
 	"id"	INTEGER NOT NULL UNIQUE,
 	"symbol"	TEXT NOT NULL,
 	"quantity"	REAL NOT NULL,
@@ -42,7 +41,7 @@ CREATE TABLE "trade" (
 	"total"	REAL NOT NULL,
 	"date"	DATE NOT NULL,
 	"type"	TEXT NOT NULL,
-	"test"	INTEGER NOT NULL DEFAULT 1,
+	"test"	INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY("id")
 );
 ```

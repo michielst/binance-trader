@@ -53,7 +53,7 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
 
 symbols = sys.argv[1].split(',') # BTC, ETH
 interval = sys.argv[2] # 1h, 1d
-start_str = (datetime.now() - timedelta(weeks=5)).strftime('%Y-%m-%d %H:%M:%S')
+start_str = (datetime.now() - timedelta(weeks=1)).strftime('%Y-%m-%d %H:%M:%S')
 end_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 for symbol in symbols:

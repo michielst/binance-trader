@@ -44,8 +44,6 @@ class RsiStrategy():
         self.upper_band, self.middle_band, self.lower_band = calculate_bollinger_bands(self.df.tail(20 + 2), 20)  # +2 as a small buffer
 
     def when_buy(self):
-        # Simplified buy logic: Consider buying when RSI indicates potential upward momentum
-        # or when the price is below the lower Bollinger Band indicating potential undervaluation.
         if (self.rsi < 30 or (self.macd_line > self.signal_line and self.price <= self.lower_band)):
             return True
         return False

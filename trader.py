@@ -28,14 +28,13 @@ def trade(symbol, test=False):
             sell(symbol)
 
 def collect(symbol):
-    symbol = "{}{}".format(symbol, CURRENCY)
+    market = "{}{}".format(symbol, CURRENCY)
 
     try:
-        price = get_ticker(symbol)
+        price = get_ticker(market)
         if price is not None:
             now = datetime.now()
-            Ticker.create(cusymbolrrency=symbol,
-                          price=price['price'], epoch=now.timestamp(), datetime=now)
+            Ticker.create(symbol=symbol, price=price['price'], date=now)
     except ValueError as e:
         print(e)
 
