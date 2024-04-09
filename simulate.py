@@ -7,8 +7,8 @@ from src.exchanges.binance_data import calculate_fibonacci_retracement_levels, g
 from src.strategies.IndicatorStrategy import IndicatorStrategy
 
 def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
-    buy_amount = 50
-    initial_balance = 100
+    buy_amount = 100
+    initial_balance = 400
     balance = initial_balance
     crypto_balance = 0  # Track the amount of cryptocurrency bought
     total_fees_paid = 0  # Track total fees paid
@@ -33,14 +33,14 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
             crypto_balance += amount_bought  # Update crypto balance
             balance -= buy_amount  # Deduct the buy_amount (including fee) from the balance
             total_fees_paid += fee
-            # print(f"Bought {amount_bought} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {buy_amount - fee:.2f} USD ({row['open_time']})")
+            print(f"Bought {amount_bought} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {buy_amount - fee:.2f} USD ({row['open_time']})")
             
         elif strategy.when_sell() and crypto_balance > 0:
             gross_value = crypto_balance * strategy.price
             fee = gross_value * fee_rate
             total_fees_paid += fee
             balance += gross_value - fee
-            # print(f"Sold {crypto_balance} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {gross_value - fee:.2f} USD ({row['open_time']})")
+            print(f"Sold {crypto_balance} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {gross_value - fee:.2f} USD ({row['open_time']})")
             crypto_balance = 0
     
     if crypto_balance > 0:
@@ -56,7 +56,7 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
 
 symbols = sys.argv[1].split(',') # BTC, ETH
 interval = '1h'
-start_str = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d %H:%M:%S')
+start_str = (datetime.now() - timedelta(weeks=2)).strftime('%Y-%m-%d %H:%M:%S')
 end_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 for symbol in symbols:

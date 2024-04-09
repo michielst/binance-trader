@@ -9,6 +9,10 @@ class IndicatorStrategy():
         self.price = float(price)
         self.fib_levels = None
 
+        self.rsi_history = []
+        self.macd_line_history = []
+        self.signal_line_history = []
+
         if simulate and isinstance(simulate_df, DataFrame):
             self.df = simulate_df
         else:
@@ -31,9 +35,20 @@ class IndicatorStrategy():
 
     def simulate_indicators(self, current_df):
         self.rsi = calculate_rsi(current_df, 14)
+        self.rsi_history.append(self.rsi)
+
         self.ma200 = calculate_ma(current_df, 200)
-        self.macd_line, self.signal_line = calculate_macd(current_df)
+        
+        self.macd_line, self.signal_line = calculate_macd(current_df)        
+        self.macd_line_history.append(self.macd_line)
+        self.signal_line_history.append(self.signal_line)
+    
         self.upper_band, self.middle_band, self.lower_band = calculate_bollinger_bands(current_df, 20)
+
+        # Limit the history size to the last few entries to avoid unbounded growth
+        self.rsi_history = self.rsi_history[-2:]
+        self.macd_line_history = self.macd_line_history[-2:]
+        self.signal_line_history = self.signal_line_history[-2:]
 
 
     def calculate_indicators(self):
@@ -67,21 +82,36 @@ class IndicatorStrategy():
 
 
     def when_buy(self):
-        fib_support_levels = [self.fib_levels[level] for level in ['23.6', '38.2', '61.8']]
-        near_fib_support = any(self.price <= level * 1.03 for level in fib_support_levels)  # Within 3% of the Fibonacci level
+        # Criteria for considering a buy:
+        # 1. Price is near a Fibonacci support level.
+        # 2. RSI indicates the asset is oversold but improving.
+        # 3. MACD line has recently crossed above the signal line, indicating bullish momentum.
+        if len(self.rsi_history) < 2:
+            return False  # Not enough data
         
-        if self.rsi < 30 or (self.macd_line > self.signal_line and near_fib_support):
+        rsi_oversold_improving = self.rsi_history[-1] > self.rsi_history[-2] > 30
+        macd_cross = self.macd_line_history[-1] > self.signal_line_history[-1] and self.macd_line_history[-2] <= self.signal_line_history[-2]
+
+        near_fib_support = any(self.price <= level * 1.03 and self.price > level for level in [self.fib_levels['23.6'], self.fib_levels['38.2'], self.fib_levels['61.8']])
+    
+        if near_fib_support and rsi_oversold_improving and macd_cross:
             return True
         return False
 
     def when_sell(self):
-        fib_resistance_levels = [self.fib_levels[level] for level in ['61.8', '78.6']]  # Removed '100'
-        fib_resistance_levels.append(self.fib_levels['high'])  # If using 'high' directly
+        # Criteria for considering a sell:
+        # 1. Price is retreating from or near a Fibonacci resistance level.
+        # 2. RSI indicates the asset might be overbought and is stabilizing or declining.
+        # 3. MACD line has recently crossed below the signal line, indicating bearish momentum.
+        if len(self.rsi_history) < 2 or len(self.macd_line_history) < 2:
+            return False  # Not enough data
 
-        near_fib_resistance = any(self.price >= level * 0.97 for level in fib_resistance_levels)  # Within 3% of the Fibonacci level
-        
-        if (self.rsi > 70 or self.macd_line < self.signal_line) and near_fib_resistance:
+        rsi_overbought_stabilizing = self.rsi_history[-1] < self.rsi_history[-2] and self.rsi_history[-1] > 70
+        macd_cross_bearish = self.macd_line_history[-1] < self.signal_line_history[-1] and self.macd_line_history[-2] >= self.signal_line_history[-2]
+
+        # Checking if price is near or has retreated from a Fibonacci resistance level
+        near_fib_resistance = any(self.price >= level * 0.97 and self.price < level for level in [self.fib_levels['61.8'], self.fib_levels['78.6']]) or self.price >= self.fib_levels['high'] * 0.97
+
+        if near_fib_resistance and (rsi_overbought_stabilizing or macd_cross_bearish):
             return True
         return False
-
-
