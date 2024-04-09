@@ -6,12 +6,12 @@ from env import *
 from models import Tickers
 from src.exchanges.binance_data import get_ticker
 from src.exchanges.binance import buy, sell
-from src.strategies.RsiStrategy import RsiStrategy
+from src.strategies.IndicatorStrategy import IndicatorStrategy
 
 
 def trade(symbol, test=False):
     ticker = get_ticker("{}{}".format(symbol, CURRENCY))
-    strategy = RsiStrategy(symbol, ticker['price'], test)
+    strategy = IndicatorStrategy(symbol, ticker['price'], test)
 
     if test is True:
         if strategy.when_buy():

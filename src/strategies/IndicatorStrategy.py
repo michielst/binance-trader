@@ -2,7 +2,7 @@ from env import CURRENCY
 from src.exchanges.binance_data import get_klines, calculate_rsi, calculate_ma, calculate_macd, calculate_bollinger_bands
 from pandas import DataFrame
 
-class RsiStrategy():
+class IndicatorStrategy():
     def __init__(self, symbol, price, test=False, simulate=False, simulate_df=None):
         self.test = test
         self.symbol = symbol
@@ -17,6 +17,10 @@ class RsiStrategy():
             self.df = get_klines(market, '1h', 200 + 26)  # Adding 26 periods for MACD's longer EMA.
             self.calculate_indicators()
             self.log()
+        
+    def log(self):
+        print("{}: RSI={}, MA200={}, MACD={}, Signal={}, Lower Bollinger={}".format(
+            self.symbol, self.rsi, self.ma200, self.macd_line, self.signal_line, self.lower_band))
         
     def simulate_indicators(self, current_df):
         self.rsi = calculate_rsi(current_df, 14)
@@ -50,7 +54,4 @@ class RsiStrategy():
         
         return False
 
-    def log(self):
-        print("{}: RSI={}, MA200={}, MACD={}, Signal={}, Lower Bollinger={}".format(
-            self.symbol, self.rsi, self.ma200, self.macd_line, self.signal_line, self.lower_band))
 
