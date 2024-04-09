@@ -2,9 +2,9 @@ import math
 from datetime import datetime
 
 from env import *
-from models import Trade
+from models import Orders
 from src.helpers import round_down
-from src.data import get_quantity
+from src.data import get_local_quantity
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -43,12 +43,12 @@ def buy(symbol, input=ORDER_INPUT):
     fee = commission * price
 
     now = datetime.now()
-    Trade.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='buy', date=now)
+    Orders.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='buy', date=now)
 
 def sell(symbol):
     symbol = '{}{}'.format(symbol, CURRENCY)
     balance = get_balance(symbol)
-    quantity = get_quantity(symbol)
+    quantity = get_local_quantity(symbol)
 
     if quantity > 0:
         info = client.get_symbol_info(symbol=symbol)
@@ -78,4 +78,4 @@ def sell(symbol):
         total = total - fee
 
         now = datetime.now()
-        Trade.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='sell', date=now)
+        Orders.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='sell', date=now)

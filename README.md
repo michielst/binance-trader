@@ -24,7 +24,7 @@ ORDER_INPUT = 15
 Create database tables
 
 ```
-CREATE TABLE "ticker" (
+CREATE TABLE "tickers" (
 	"id"	INTEGER NOT NULL,
 	"symbol"	TEXT NOT NULL,
 	"price"	REAL NOT NULL,

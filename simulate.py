@@ -10,8 +10,8 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
     df = get_historical_klines(symbol + CURRENCY, interval, start_str, end_str)
     strategy = RsiStrategy(symbol, price=0, test=test, simulate=True, simulate_df=df)
     
-    buy_amount = 100
-    initial_balance = 1000
+    buy_amount = 15
+    initial_balance = 100
     balance = initial_balance
     crypto_balance = 0  # Track the amount of cryptocurrency bought
     total_fees_paid = 0  # Track total fees paid

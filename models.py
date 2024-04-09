@@ -8,7 +8,7 @@ class BaseModel(Model):
         database = db
 
 
-class Ticker(BaseModel):
+class Tickers(BaseModel):
     symbol = CharField(max_length=10)
     date = DateTimeField()
     price = FloatField()

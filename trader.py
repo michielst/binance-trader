@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 from env import *
-from models import Ticker
+from models import Tickers
 from src.exchanges.binance_data import get_ticker
 from src.exchanges.binance import buy, sell
 from src.strategies.RsiStrategy import RsiStrategy
@@ -34,7 +34,7 @@ def collect(symbol):
         price = get_ticker(market)
         if price is not None:
             now = datetime.now()
-            Ticker.create(symbol=symbol, price=price['price'], date=now)
+            Tickers.create(symbol=symbol, price=price['price'], date=now)
     except ValueError as e:
         print(e)
 
