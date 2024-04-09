@@ -24,6 +24,7 @@ def get_balance(symbol):
     else:
         return float(balance['free'])
 
+
 def calculate_rsi(symbol, interval='1d', period=14):
     """
     Calculate RSI for a given symbol and interval.
@@ -60,3 +61,92 @@ def calculate_rsi(symbol, interval='1d', period=14):
     RSI = 100 - (100 / (1 + RS))
     
     return RSI
+
+
+def calculate_ma(symbol, interval, period):
+    """
+    Calculate the Simple Moving Average (MA) for a given symbol and period.
+
+    Parameters:
+    - symbol (str): The symbol to calculate MA for, e.g., 'BTCUSDT'.
+    - interval (str): The candlestick interval (e.g., '1h', '1d').
+    - period (int): The period to calculate MA over (e.g., 50, 100, 200).
+
+    Returns:
+    - float: The MA value.
+    """   
+    # Fetch historical candlestick data
+    candles = client.get_klines(symbol=symbol, interval=interval, limit=period)
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(candles, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_asset_volume', 'trades', 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'])
+    df['close'] = pd.to_numeric(df['close'])
+    
+    # Calculate the MA
+    ma = df['close'].tail(period).mean()
+
+    return ma
+
+
+def calculate_macd(symbol, interval):
+    """
+    Calculate the MACD and Signal line for a given symbol.
+
+    Parameters:
+    - symbol (str): The symbol to calculate MACD for, e.g., 'BTCUSDT'.
+    - interval (str): The candlestick interval (e.g., '1h', '1d').
+
+    Returns:
+    - tuple (float, float): A tuple containing the MACD line value and the Signal line value.
+    """   
+    # Fetch historical candlestick data (we fetch more to ensure accuracy for the EMAs)
+    candles = client.get_klines(symbol=symbol, interval=interval, limit=100)  # 100 is chosen to ensure enough data for calculating EMAs
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(candles, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_asset_volume', 'trades', 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'])
+    df['close'] = pd.to_numeric(df['close'])
+    
+    # Calculate the EMAs for MACD
+    exp1 = df['close'].ewm(span=12, adjust=False).mean()
+    exp2 = df['close'].ewm(span=26, adjust=False).mean()
+    df['macd'] = exp1 - exp2
+    df['signal_line'] = df['macd'].ewm(span=9, adjust=False).mean()
+    
+    # Latest MACD and Signal line values
+    macd_line = df['macd'].iloc[-1]
+    signal_line = df['signal_line'].iloc[-1]
+
+    return macd_line, signal_line
+
+
+def calculate_bollinger_bands(symbol, interval, period=20, std_dev_factor=2):
+    """
+    Calculate Bollinger Bands for a given symbol.
+
+    Parameters:
+    - symbol (str): The symbol to calculate Bollinger Bands for, e.g., 'BTCUSDT'.
+    - interval (str): The candlestick interval (e.g., '1h', '1d').
+    - period (int): The period for SMA calculation, default is 20.
+    - std_dev_factor (int): The standard deviation factor, default is 2.
+
+    Returns:
+    - tuple of pandas Series: (upper_band, middle_band, lower_band)
+    """    
+    # Fetch historical candlestick data
+    candles = client.get_klines(symbol=symbol, interval=interval, limit=period*2)  # Fetch more to ensure accuracy
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(candles, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_asset_volume', 'trades', 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'])
+    df['close'] = pd.to_numeric(df['close'])
+    
+    # Calculate SMA for the given period
+    df['middle_band'] = df['close'].rolling(window=period).mean()
+    
+    # Calculate Standard Deviation
+    df['std_dev'] = df['close'].rolling(window=period).std()
+    
+    # Calculate Upper and Lower Bands
+    df['upper_band'] = df['middle_band'] + (df['std_dev'] * std_dev_factor)
+    df['lower_band'] = df['middle_band'] - (df['std_dev'] * std_dev_factor)
+
+    return df['upper_band'], df['middle_band'], df['lower_band']

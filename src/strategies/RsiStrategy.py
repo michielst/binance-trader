@@ -1,7 +1,7 @@
 from env import *
 from models import Ticker, Trade
 from src.helpers import calc_diff
-from src.exchanges.binance_data import calculate_rsi 
+from src.exchanges.binance_data import calculate_rsi, calculate_ma, calculate_macd, calculate_bollinger_bands
 
 class RsiStrategy():
     def __init__(self, tickers, test=False):
@@ -19,24 +19,28 @@ class RsiStrategy():
                                           self.ticker.currency, Trade.type == 'sell').count()
 
     def when_buy(self):
-        # Calculate RSI based on the symbol from the most recent data
-        # Assuming symbol is like 'BTCUSDT' and is stored in self.ticker.currency in a compatible format
-        rsi = calculate_rsi(self.ticker.currency + 'USDT', '1h', 14)  # Example for hourly data
+        rsi = calculate_rsi(self.ticker.currency + 'USDT', '1h', 14)
+        ma200 = calculate_ma(self.ticker.currency + 'USDT', '1h', 200)  # 200-period MA for trend
+        macd_line, signal_line = calculate_macd(self.ticker.currency + 'USDT', '1h')
+        upper_band, middle_band, lower_band = calculate_bollinger_bands(self.ticker.currency + 'USDT', '1h')
 
-        print("{}: {}RSI".format(self.ticker.currency, rsi)) 
+        print("{}: RSI={}, MA200={}, MACD={}, Signal={}, Lower Bollinger={}".format(
+            self.ticker.currency, rsi, ma200, macd_line, signal_line, lower_band.iloc[-1]))
 
-        # Implement buy logic based on RSI
-        if rsi < 30 and (self.buys - self.sells) <= 0:
-            # RSI indicates oversold, potential buy opportunity
+        # Buy logic: Add condition for price touching or crossing below the lower Bollinger Band
+        if (rsi < 30 and self.ticker.price > ma200 and macd_line > signal_line and 
+            self.ticker.price <= lower_band.iloc[-1] and (self.buys - self.sells) <= 0):
             return True
         return False
 
     def when_sell(self):
-        # Calculate RSI for selling decision
-        rsi = calculate_rsi(self.ticker.currency + 'USDT', '1h', 14)  # Same assumption as above
+        rsi = calculate_rsi(self.ticker.currency + 'USDT', '1h', 14)
+        ma200 = calculate_ma(self.ticker.currency + 'USDT', '1h', 200)
+        macd_line, signal_line = calculate_macd(self.ticker.currency + 'USDT', '1h')
+        upper_band, middle_band, lower_band = calculate_bollinger_bands(self.ticker.currency + 'USDT', '1h')
 
-        # Implement sell logic based on RSI
-        if rsi > 70 and (self.buys - self.sells) > 0:
-            # RSI indicates overbought, potential sell opportunity
+        # Sell logic: Add condition for price touching or crossing above the upper Bollinger Band
+        if ((rsi > 70 or macd_line < signal_line) and self.ticker.price >= upper_band.iloc[-1] and 
+            (self.buys - self.sells) > 0):
             return True
         return False
