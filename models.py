@@ -17,11 +17,9 @@ class Ticker(BaseModel):
 
 class Trade(BaseModel):
     currency = CharField(max_length=10)
-    quantity = FloatField()  # amount received in wallet (fees already subtracted)
+    quantity = FloatField()  # Amount received in wallet (fees already subtracted)
     price = FloatField()
-    fee = FloatField()  # total fee paid in CURRENCY
-    total = FloatField()  # total CURRENCY spent buying or receiving when selling
-    type = CharField(max_length=5)
-    date = DateTimeField()
-    epoch = CharField()
-    test = BooleanField()
+    fee = FloatField()  # Total fee paid in CURRENCY
+    total = FloatField()  # Total CURRENCY spent or received
+    type = CharField(max_length=5)  # 'buy' or 'sell'
+    date = DateTimeField() 

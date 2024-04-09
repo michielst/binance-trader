@@ -1,11 +1,10 @@
 import sys
-import pandas as pd
 from datetime import datetime, timedelta
+import pandas as pd
+
+from env import CURRENCY
 from src.exchanges.binance_data import get_historical_klines
 from src.strategies.RsiStrategy import RsiStrategy
-from models import Trade
-from env import CURRENCY
-
 
 def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
     df = get_historical_klines(symbol + CURRENCY, interval, start_str, end_str)

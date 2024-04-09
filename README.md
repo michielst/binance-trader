@@ -40,9 +40,8 @@ CREATE TABLE "trade" (
 	"price"	REAL NOT NULL,
 	"fee"	REAL NOT NULL,
 	"total"	REAL NOT NULL,
-	"date"	TEXT NOT NULL,
+	"date"	DATE NOT NULL,
 	"type"	TEXT NOT NULL,
-	"epoch"	TEXT NOT NULL,
 	"test"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("id")
 )

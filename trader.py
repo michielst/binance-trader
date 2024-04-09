@@ -4,7 +4,6 @@ import time
 from env import *
 from src.exchanges.binance_data import get_ticker
 from src.exchanges.binance import buy, sell
-from src.exchanges.test import test_buy, test_sell
 from src.strategies.RsiStrategy import RsiStrategy
 from src.wallet import wallet
 
