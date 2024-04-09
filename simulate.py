@@ -3,20 +3,23 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from env import CURRENCY
-from src.exchanges.binance_data import get_historical_klines
+from src.exchanges.binance_data import calculate_fibonacci_retracement_levels, get_historical_klines
 from src.strategies.IndicatorStrategy import IndicatorStrategy
 
 def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
-    df = get_historical_klines(symbol + CURRENCY, interval, start_str, end_str)
-    strategy = IndicatorStrategy(symbol, price=0, test=test, simulate=True, simulate_df=df)
-    
-    buy_amount = 15
+    buy_amount = 50
     initial_balance = 100
     balance = initial_balance
     crypto_balance = 0  # Track the amount of cryptocurrency bought
     total_fees_paid = 0  # Track total fees paid
-    
     fee_rate = 0.001  # Binance fee rate of 0.10%
+    
+    df = get_historical_klines(symbol + CURRENCY, interval, start_str, end_str)
+    
+    strategy = IndicatorStrategy(symbol, price=0, test=test, simulate=True, simulate_df=df)
+    
+    fib_levels = calculate_fibonacci_retracement_levels(df)    
+    strategy.set_fibonacci_levels(fib_levels)
     
     for index, row in df.iterrows():
         current_df = df.iloc[:index + 1]
@@ -30,14 +33,14 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
             crypto_balance += amount_bought  # Update crypto balance
             balance -= buy_amount  # Deduct the buy_amount (including fee) from the balance
             total_fees_paid += fee
-            print(f"Bought {amount_bought} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {buy_amount - fee:.2f} USD ({row['open_time']})")
+            # print(f"Bought {amount_bought} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {buy_amount - fee:.2f} USD ({row['open_time']})")
             
         elif strategy.when_sell() and crypto_balance > 0:
             gross_value = crypto_balance * strategy.price
             fee = gross_value * fee_rate
             total_fees_paid += fee
             balance += gross_value - fee
-            print(f"Sold {crypto_balance} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {gross_value - fee:.2f} USD ({row['open_time']})")
+            # print(f"Sold {crypto_balance} {symbol} at {strategy.price}, fee: {fee:.2f} USD, Value: {gross_value - fee:.2f} USD ({row['open_time']})")
             crypto_balance = 0
     
     if crypto_balance > 0:
@@ -52,8 +55,8 @@ def simulate_trades(symbol, interval, start_str, end_str=None, test=True):
     return profit
 
 symbols = sys.argv[1].split(',') # BTC, ETH
-interval = sys.argv[2] # 1h, 1d
-start_str = (datetime.now() - timedelta(weeks=2)).strftime('%Y-%m-%d %H:%M:%S')
+interval = '1h'
+start_str = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d %H:%M:%S')
 end_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 for symbol in symbols:

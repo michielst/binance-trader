@@ -120,3 +120,17 @@ def calculate_bollinger_bands(df, period, std_dev_factor=2):
     df_copy['lower_band'] = df_copy['middle_band'] - (df_copy['std_dev'] * std_dev_factor)
 
     return df_copy['upper_band'].iloc[-1], df_copy['middle_band'].iloc[-1], df_copy['lower_band'].iloc[-1]
+
+
+def calculate_fibonacci_retracement_levels(df):
+    high = pd.to_numeric(df['high']).max()
+    low = pd.to_numeric(df['low']).min()
+
+    levels = [0.236, 0.382, 0.5, 0.618, 0.786]
+    retracements = {'high': high, 'low': low}
+
+    for level in levels:
+        # Correctly formatting the key and ensuring arithmetic operations on numbers
+        retracements[f'{level:.1%}'.replace('%', '')] = high - (high - low) * level
+
+    return retracements
