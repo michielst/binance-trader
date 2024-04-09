@@ -1,40 +1,17 @@
 import sys
 import time
-from datetime import datetime
 
 from env import *
-from models import Ticker
 from src.exchanges.binance_data import get_ticker
 from src.exchanges.binance import buy, sell
 from src.exchanges.test import test_buy, test_sell
-from src.helpers import calc_diff, send_public_telegram
-from src.strategies.Strategy import Strategy
+from src.strategies.RsiStrategy import RsiStrategy
 from src.wallet import wallet
 
 
-def log(symbol, diff_pct, price):
-    if diff_pct >= 5:
-        send_public_telegram('🟢 {} UP %{} (${})'.format(
-            symbol, round(diff_pct, 2), round(price, 4)))
-
-    if diff_pct <= -5:
-        send_public_telegram('🔴 {} DOWN %{} (${})'.format(
-            symbol, round(diff_pct, 2), round(price, 4)))
-
-
 def trade(symbol, test=False):
-    tickers = Ticker.select().where(
-        Ticker.currency == symbol).order_by(-Ticker.epoch).limit(30)
-    strategy = Strategy(tickers, test)
-
-    if strategy.diff == 0.0:
-        return
-
-    print("{}:{} {} \t => %{} \t => {}{}".format(strategy.ticker.datetime.hour,
-                                                 strategy.ticker.datetime.minute, symbol, round(strategy.diff_pct, 2), strategy.ticker.price, CURRENCY))
-
-    if TELEGRAM_TOKEN and TELEGRAM_PUBLIC_CHAT_ID:
-        log(symbol, strategy.diff_pct, strategy.ticker.price)
+    ticker = get_ticker("{}{}".format(symbol, CURRENCY))
+    strategy = RsiStrategy(symbol, ticker['price'], test)
 
     if test is True:
         if strategy.when_buy():
@@ -50,26 +27,26 @@ def trade(symbol, test=False):
         if strategy.when_sell():
             sell(symbol)
 
-        # print out current profit percentage when available.
-        if hasattr(strategy, 'profit_pct'):
-            print('PROFIT_PCT: %{} PROFIT: {}'.format(
-                round(strategy.profit_pct, 2), strategy.profit))
+        # # print out current profit percentage when available.
+        # if hasattr(strategy, 'profit_pct'):
+        #     print('PROFIT_PCT: %{} PROFIT: {}'.format(
+        #         round(strategy.profit_pct, 2), strategy.profit))
 
 
-def scrape(currency):
-    symbol = "{}{}".format(currency, CURRENCY)
+# def scrape(currency):
+#     symbol = "{}{}".format(currency, CURRENCY)
 
-    try:
-        price = get_ticker(symbol)
-        if price is not None:
-            now = datetime.now()
-            Ticker.create(currency=currency,
-                          price=price['price'], epoch=now.timestamp(), datetime=now)
-    except ValueError as e:
-        print(e)
+#     try:
+#         price = get_ticker(symbol)
+#         if price is not None:
+#             now = datetime.now()
+#             Ticker.create(currency=currency,
+#                           price=price['price'], epoch=now.timestamp(), datetime=now)
+#     except ValueError as e:
+#         print(e)
 
 
-def start(test=False, scrape_preparation_minutes=30):
+def start(test=False, scrape_preparation_minutes=0):
     starttime = time.time()
     scraper_runs_count = 0
 
@@ -77,7 +54,7 @@ def start(test=False, scrape_preparation_minutes=30):
         scraper_runs_count += 1
 
         for symbol in SYMBOLS:
-            scrape(symbol)
+            # scrape(symbol)
             if scraper_runs_count > scrape_preparation_minutes:
                 trade(symbol, test)
 
