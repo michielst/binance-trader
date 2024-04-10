@@ -54,10 +54,12 @@ def simulate_trades(symbol, initial_balance, interval, start_str, end_str=None, 
 
 symbols = sys.argv[1].split(',')  # e.g., "BTC,ETH"
 interval = '1h'
-start_str = (datetime.now() - timedelta(weeks=1)).strftime('%Y-%m-%d %H:%M:%S')
+start_str = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d %H:%M:%S')
 end_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-initial_balance = 500
+print(f"Hourly simulation between: {start_str} - {end_str}")
+
+initial_balance = 100
 total_profit = 0
 total_initial_balance = 0
 total_fees = 0
