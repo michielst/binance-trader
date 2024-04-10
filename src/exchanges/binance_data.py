@@ -25,7 +25,7 @@ def get_balance(symbol):
         return float(balance['free'])
 
 
-def get_klines(symbol, interval='1d', limit=14):
+def get_klines(symbol, interval='1h', limit=14):
     candles = client.get_klines(symbol=symbol, interval=interval, limit=limit)  
     
     # Convert to DataFrame

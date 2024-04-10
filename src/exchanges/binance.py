@@ -2,80 +2,66 @@ import math
 from datetime import datetime
 
 from env import *
-from models import Orders
-from src.helpers import round_down
-from src.data import get_local_quantity
+from models import Orders, Balance
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
-from src.exchanges.binance_data import get_balance
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
+def place_order(symbol, quantity, price, fee, order_type, test=True):
+    symbol_with_currency = f"{symbol}{CURRENCY}"
+    
+    # Calculate the adjusted quantity according to Binance's step size
+    info = client.get_symbol_info(symbol_with_currency)
+    step_size = float(info['filters'][2]['stepSize'])
+    precision = int(round(-math.log(step_size, 10), 0))
+    adjusted_quantity = math.floor(quantity / step_size) * step_size
+
+    try:
+        if order_type == 'buy':
+            order_response = client.create_order(
+                symbol=symbol_with_currency,
+                side=Client.SIDE_BUY,
+                type=Client.ORDER_TYPE_MARKET,
+                quantity=round(adjusted_quantity, precision))
+        else:  # For sell
+            order_response = client.create_order(
+                symbol=symbol_with_currency,
+                side=Client.SIDE_SELL,
+                type=Client.ORDER_TYPE_MARKET,
+                quantity=round_down(adjusted_quantity, precision))
+
+        # Calculate total based on the order response
+        total = sum(float(fill['price']) * float(fill['qty']) for fill in order_response['fills'])
+        
+        # Update balance after the execution
+        if order_type == 'buy':
+            update_balance(symbol, total + fee, adding=False)
+        else:
+            update_balance(symbol, total - fee, adding=True)
+
+        # Log order details
+        print(f"{'BUY' if order_type == 'buy' else 'SELL'} order executed for {symbol}. Quantity: {adjusted_quantity}, Price: {price}, Fee: {fee}, Total: {total}")
+
+        # Save the order to the database
+        Orders.create(symbol=symbol, quantity=adjusted_quantity, price=price, fee=fee, total=total, type=order_type, test=test, is_open=order_type == 'buy')
+        
+    except BinanceAPIException as e:
+        print(f"Error executing {'buy' if order_type == 'buy' else 'sell'} order for {symbol}: {e}")
 
 
-def buy(symbol, input=ORDER_INPUT):
-    symbol = '{}{}'.format(symbol, CURRENCY)
-    order_price = float(input)
-    trades = client.get_recent_trades(symbol=symbol)
-    price = float(trades[0]['price'])
-    quantity = order_price / price
-    info = client.get_symbol_info(symbol=symbol)
-    stepSize = float(info['filters'][2]['stepSize'])
-    precision = int(round(-math.log(stepSize, 10), 0))
+def round_down(value, decimals):
+    factor = 10 ** decimals
+    return math.floor(value * factor) / factor
 
-    order = client.create_order(
-        symbol=symbol,
-        side=Client.SIDE_BUY,
-        type=Client.ORDER_TYPE_MARKET,
-        quantity=(round(quantity, precision)))
+# def get_balance(symbol):
+#     balance, created = Balance.get_or_create(symbol=symbol)
+#     return balance.amount
 
-    print(order)
-
-    quantity = 0
-    commission = 0
-    for fill in order['fills']:
-        commission += float(fill['commission'])
-        quantity += float(fill['qty'])
-
-    quantity = quantity - commission
-    price = float(order['fills'][0]['price'])
-    total = float(order['cummulativeQuoteQty'])
-    fee = commission * price
-
-    now = datetime.now()
-    Orders.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='buy', date=now)
-
-def sell(symbol):
-    symbol = '{}{}'.format(symbol, CURRENCY)
-    balance = get_balance(symbol)
-    quantity = get_local_quantity(symbol)
-
-    if quantity > 0:
-        info = client.get_symbol_info(symbol=symbol)
-        stepSize = float(info['filters'][2]['stepSize'])
-        precision = int(round(-math.log(stepSize, 10), 0))
-
-        if quantity >= balance:
-            quantity = balance
-
-        order = client.create_order(
-            symbol=symbol,
-            side=Client.SIDE_SELL,
-            type=Client.ORDER_TYPE_MARKET,
-            quantity=round_down(quantity, precision)
-        )
-
-        print(order)
-
-        quantity = 0
-        fee = 0
-        for fill in order['fills']:
-            fee += float(fill['commission'])
-            quantity += float(fill['qty'])
-
-        price = float(order['fills'][0]['price'])
-        total = float(order['cummulativeQuoteQty'])
-        total = total - fee
-
-        now = datetime.now()
-        Orders.create(symbol=symbol, quantity=quantity, price=price, fee=fee, total=total, type='sell', date=now)
+def update_balance(symbol, amount, adding=False):
+    balance, _ = Balance.get_or_create(symbol=symbol)
+    if adding:
+        balance.amount += amount
+    else:
+        balance.amount -= amount
+    balance.save()
