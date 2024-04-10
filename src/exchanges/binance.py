@@ -8,16 +8,27 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException
 
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
+
 def place_order(symbol, quantity, price, fee, order_type):
     symbol_with_currency = f"{symbol}{CURRENCY}"
-    
-    # Calculate the adjusted quantity according to Binance's step size
-    info = client.get_symbol_info(symbol_with_currency)
-    step_size = float(info['filters'][2]['stepSize'])
-    precision = int(round(-math.log(step_size, 10), 0))
-    adjusted_quantity = math.floor(quantity / step_size) * step_size
 
     try:
+        info = client.get_symbol_info(symbol=symbol_with_currency)
+        step_size = 0.0
+
+        # Find the LOT_SIZE filter to get the stepSize value
+        for filter in info['filters']:
+            if filter['filterType'] == 'LOT_SIZE':
+                step_size = float(filter['stepSize'])
+                break
+
+        if step_size == 0.0:
+            print(f"Unable to find step size for {symbol_with_currency}")
+            return
+
+        precision = int(round(-math.log(step_size, 10), 0))
+        adjusted_quantity = math.floor(quantity / step_size) * step_size
+        
         if order_type == 'buy':
             order_response = client.create_order(
                 symbol=symbol_with_currency,
