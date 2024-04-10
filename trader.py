@@ -9,7 +9,7 @@ from models import Orders, Balance
 from src.exchanges.binance import place_order
 
 
-def live_trade(symbol, test=True):
+def live_trade(symbol):
     buy_amount = 10  # The fixed amount for each order
     fee_rate = 0.001
     trades_done = 0
@@ -21,25 +21,25 @@ def live_trade(symbol, test=True):
     # Fetch historical data needed for strategy calculations
     df = get_historical_klines(symbol + CURRENCY, '1h', start_str=(datetime.now() - pd.Timedelta(weeks=1)).strftime('%Y-%m-%d %H:%M:%S'))
     
-    strategy = IndicatorStrategy(symbol, price, test=test, simulate=True, simulate_df=df)
+    strategy = IndicatorStrategy(symbol, price, simulate=True, simulate_df=df)
     fib_levels = calculate_fibonacci_retracement_levels(df) 
     strategy.set_fibonacci_levels(fib_levels)
     
     strategy.simulate_indicators(df)
            
-    open_orders = Orders.select().where(Orders.symbol == symbol, Orders.is_open == True, Orders.test == test)
+    open_orders = Orders.select().where(Orders.symbol == symbol, Orders.is_open == True, Orders.test == False)
     if not open_orders.exists() and strategy.when_buy():
         fee = buy_amount * fee_rate
         quantity = (buy_amount - fee) / price
         trades_done += 1
-        place_order(symbol, quantity, price, fee, 'buy', test)
+        place_order(symbol, quantity, price, fee, 'buy')
         
     elif open_orders.exists() and strategy.when_sell():
         # Assuming there's only one open order at a time
         open_order = open_orders.get()
         fee = open_order.quantity * price * fee_rate
         trades_done += 1
-        place_order(symbol, open_order.quantity, price, fee, 'sell', test)
+        place_order(symbol, open_order.quantity, price, fee, 'sell')
         open_order.is_open = False
         open_order.save()
     
@@ -50,4 +50,4 @@ if __name__ == "__main__":
 
     print("Starting live trading session...")
     for symbol in symbols:
-        live_trade(symbol, test=True)
+        live_trade(symbol)

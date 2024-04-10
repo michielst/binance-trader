@@ -6,7 +6,7 @@ from env import CURRENCY
 from src.exchanges.binance_data import calculate_fibonacci_retracement_levels, get_historical_klines
 from src.strategies.IndicatorStrategy import IndicatorStrategy
 
-def simulate_trades(symbol, initial_balance, interval, start_str, end_str=None, test=True):
+def simulate_trades(symbol, initial_balance, interval, start_str, end_str=None):
     buy_amount = 100
     balance = initial_balance
     crypto_balance = 0
@@ -16,7 +16,7 @@ def simulate_trades(symbol, initial_balance, interval, start_str, end_str=None, 
     
     df = get_historical_klines(symbol + CURRENCY, interval, start_str, end_str)
     
-    strategy = IndicatorStrategy(symbol, price=0, test=test, simulate=True, simulate_df=df)
+    strategy = IndicatorStrategy(symbol, price=0, simulate=True, simulate_df=df)
     fib_levels = calculate_fibonacci_retracement_levels(df)    
     strategy.set_fibonacci_levels(fib_levels)
     
@@ -65,7 +65,7 @@ total_initial_balance = 0
 total_fees = 0
 total_trades = 0
 for symbol in symbols:
-    symbol_profit, profit_pct, fees_paid, trades = simulate_trades(symbol, initial_balance, interval, start_str, end_str, test=True)
+    symbol_profit, profit_pct, fees_paid, trades = simulate_trades(symbol, initial_balance, interval, start_str, end_str)
     total_profit += symbol_profit
     total_initial_balance += initial_balance  
     total_fees += fees_paid

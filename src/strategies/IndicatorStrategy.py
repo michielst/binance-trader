@@ -3,8 +3,7 @@ from src.exchanges.binance_data import calculate_fibonacci_retracement_levels, g
 from pandas import DataFrame
 
 class IndicatorStrategy():
-    def __init__(self, symbol, price, test=False, simulate=False, simulate_df=None):
-        self.test = test
+    def __init__(self, symbol, price, simulate=False, simulate_df=None):
         self.symbol = symbol
         self.position_held = False
         self.price = float(price)
