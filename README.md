@@ -26,6 +26,5 @@ source venv/bin/activate
 crontab -e
 
 
-0 * * * * /path/to/your/project/venv/bin/python /path/to/your/project/your_script.py
-
+0 * * * * /home/ubuntu/binance-trader/venv/bin/python /home/ubuntu/binance-trader/trader.py
 ```

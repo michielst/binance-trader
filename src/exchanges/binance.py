@@ -7,6 +7,8 @@ from models import Orders, Balance
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 
+from src.helpers import send_discord
+
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
 
 def place_order(symbol, quantity, price, fee, order_type):
@@ -52,12 +54,14 @@ def place_order(symbol, quantity, price, fee, order_type):
             update_balance(symbol, total - fee, adding=True)
 
         # Log order details
+        send_discord(f"{'BUY' if order_type == 'buy' else 'SELL'} order executed for {symbol}. Quantity: {adjusted_quantity}, Price: {price}, Fee: {fee}, Total: {total}")
         print(f"{'BUY' if order_type == 'buy' else 'SELL'} order executed for {symbol}. Quantity: {adjusted_quantity}, Price: {price}, Fee: {fee}, Total: {total}")
 
         # Save the order to the database
         Orders.create(symbol=symbol, quantity=adjusted_quantity, price=price, fee=fee, total=total, type=order_type, test=False, is_open=order_type == 'buy')
         
     except BinanceAPIException as e:
+        send_discord(f"Error executing {'buy' if order_type == 'buy' else 'sell'} order for {symbol}: {e}")
         print(f"Error executing {'buy' if order_type == 'buy' else 'sell'} order for {symbol}: {e}")
 
 

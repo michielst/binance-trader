@@ -7,7 +7,7 @@ from src.exchanges.binance_data import get_klines, get_historical_klines, calcul
 from src.strategies.IndicatorStrategy import IndicatorStrategy
 from models import Orders, Balance
 from src.exchanges.binance import place_order
-
+from src.helpers import send_discord
 
 def live_trade(symbol):
     buy_amount = 10  # The fixed amount for each order
@@ -19,7 +19,7 @@ def live_trade(symbol):
     price = float(ticker['close'].iloc[-1])
     
     # Fetch historical data needed for strategy calculations
-    df = get_historical_klines(symbol + CURRENCY, '1h', start_str=(datetime.now() - pd.Timedelta(weeks=1)).strftime('%Y-%m-%d %H:%M:%S'))
+    df = get_historical_klines(symbol + CURRENCY, '1h', start_str=(datetime.now() - pd.Timedelta(weeks=10)).strftime('%Y-%m-%d %H:%M:%S'))
     
     strategy = IndicatorStrategy(symbol, price, simulate=True, simulate_df=df)
     fib_levels = calculate_fibonacci_retracement_levels(df) 
@@ -43,6 +43,7 @@ def live_trade(symbol):
         open_order.is_open = False
         open_order.save()
     
+    send_discord(f"Live trade completed for {symbol}. Trades done: {trades_done}")
     print(f"Live trade completed for {symbol}. Trades done: {trades_done}")
 
 if __name__ == "__main__":
